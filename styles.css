@@ -1,18 +1,32 @@
 /* Global Styles */
+header {
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #e4fde2;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.logo {
+    height: 40px;
+    object-fit: contain;
+}
+
 body {
-    background-color: #c5ffc2; /* Change to white */
+    background-color: #c5ffc2;
     color: #001b2e;
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-#alizah {
-    color: #6A686A;
-    font-family: Times New Roman;
 }
 
 /* Container */
@@ -20,6 +34,7 @@ body {
     text-align: center;
     max-width: 500px;
     padding: 30px 20px;
+    margin-top: 100px;
     background-color: #e4fde2;
     border-radius: 10px;
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
