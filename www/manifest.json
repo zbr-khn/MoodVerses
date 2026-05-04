@@ -1,0 +1,46 @@
+{
+    "short_name": "Quran Verses",
+    "name": "MoodVerses",
+    "icons": [
+        {
+            "src": "/icons/logo-moodverses-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/icons/logo-moodverses-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "/icons/logo-moodverses-128x128.png",
+            "sizes": "128x128",
+            "type": "image/png"
+        }
+    ],
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#001b2e",
+    "screenshots": [
+        {
+            "src": "/screenshots/Screenshot-320x568.png",
+            "sizes": "320x568",
+            "type": "image/png",
+            "label": "Mobile screenshot"
+        },
+        {
+            "src": "/screenshots/Screenshot-1280x800.png",
+            "sizes": "1280x800",
+            "type": "image/png",
+            "label": "Tablet screenshot"
+        },
+        {
+            "src": "/screenshots/Screenshot-1440x900.png",
+            "sizes": "1440x900",
+            "type": "image/png",
+            "label": "Desktop screenshot",
+            "form_factor": "wide"
+        }
+    ]
+}

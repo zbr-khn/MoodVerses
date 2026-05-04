@@ -1,0 +1,286 @@
+/* Global Styles */
+body {
+    background-color: #A1E4D8;
+    color: #001b2e;
+    font-family: Arial, sans-serif;
+    margin: 0; /* Reset margin to avoid extra space */
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    box-sizing: border-box; /* Include padding and border in size */
+}
+
+header {
+    /* background-color: #001b2e; */
+    color: #fff;
+    padding: 10px 0;
+    position: fixed; /* Ensures the header stays at the top */
+    width: 100%; /* Ensures the header spans the full width */
+    top: 0; /* Aligns it at the top */
+    left: 0; /* Aligns it to the left edge */
+    z-index: 1000; /* Keeps it above other content */
+}
+
+
+.navbar {
+        display: flex;
+        justify-content: center; /* Center the logo horizontally */
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto; /* Center the navbar within its container */
+        padding: 0 20px;
+        position: relative;
+    }
+
+    .navbar {
+        display: flex;
+        justify-content: space-between; /* Distribute space between items */
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto; /* Center the navbar within its container */
+        position: relative;
+    }
+
+
+.logo-container {
+    flex: 1;
+    text-align: center;
+}
+
+/* Logo Container */
+.logo-container {
+    flex: 1; /* Take up available space */
+    text-align: center; /* Center the content */
+}
+
+.logo {
+    max-height: 100px; 
+    max-width: 700px;
+}
+
+.logo {
+    max-height: 100px;
+    max-width: 700px;
+}
+
+.settings-container {
+    position: relative;
+}
+.settings-container {
+    display: flex;
+    align-items: center;
+    margin-left: auto; /* Push the settings container to the far right */
+}
+
+.settings-icon {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 25px;
+    cursor: pointer;
+}
+
+.settings-container {
+    display: flex;
+    align-items: center;
+    margin-left: auto; /* Push the settings container to the far right */
+}
+
+.settings-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: #fff;
+    color: #001b2e;
+    border: 0px solid #302e2e;
+    border-radius: 1px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.settings-menu button {
+    background: #60baa8;
+    border: 6rem;
+    padding: 10px 20px;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+    /* display: inline-block;
+    position: relative; */
+    text-align: justify;
+    border-radius: 1px;
+    
+}
+
+.settings-menu button:hover {
+    background-color: #a2deab;
+    color: whitesmoke;
+}
+
+
+#greeting {
+    color: #6A686A;
+    font-family: Times New Roman;
+}
+
+/* Container */
+.container {
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+    padding: 30px 20px;
+    background-color: #e4fde2;
+    border-radius: 10px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden; /* Hide overflow content */
+    box-sizing: border-box; /* Include padding and border in size */
+    position: relative; /* Needed for absolutely positioned elements */
+    margin-top: 60px; /* Add margin to push the content below the fixed header */
+}
+
+/* Heading */
+h1 {
+    margin-bottom: 25px;
+    font-size: 26px;
+}
+
+/* Button Container */
+.button-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+    margin-bottom: 25px;
+}
+
+/* Emotion Buttons */
+.emotion-btn {
+    padding: 15px;
+    border: none;
+    border-radius: 100px;
+    color: #001b2e;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.emotion-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    background-color: beige;
+}
+
+/* Individual Button Colors */
+.happy {
+    background-color: yellow;
+}
+
+.sad {
+    background-color: blue;
+}
+
+.lonely {
+    background-color: #5EEAF9;
+}
+
+.thankful {
+    background-color: purple;
+}
+
+.angry {
+    background-color: red;
+}
+
+.anxious {
+    background-color: green;
+}
+
+/* Verse Box */
+.verse-box {
+    padding: 25px;
+    border-radius: 10px;
+    font-size: 20px;
+    line-height: 1.6;
+    max-height: 200px; /* Adjust this value as needed */
+    overflow-y: auto;
+    color: #001b2e;
+    background-color: #eef3f9;
+    border: 4px solid #d3d3d3;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    width: 100%; /* Ensure the box spans the full width of its container */
+    box-sizing: border-box; /* Ensure padding and border are included in the width */
+    flex-shrink: 0;
+    min-height: 200px; /* Ensure the box does not shrink below a certain height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* Verse Box Colors */
+.happy-box {
+    background-color: #fffbd5;
+    border-color: #fff7a1;
+}
+
+.sad-box {
+    background-color: #4f7dfd;
+    border-color: #6683fc;
+    color: #ffffff;
+}
+
+.lonely-box {
+    background-color: #a7f2fc;
+    border-color: #d1e4f1;
+    color: #3a3a3a;
+}
+
+.thankful-box {
+    background-color: #e0b0e0;
+    border-color: #dba7db;
+    color: #3a3a3a;
+}
+
+.angry-box {
+    background-color: #ff7b6a;
+    border-color: #ff9a8a;
+    color: #ffffff;
+}
+
+.anxious-box {
+    background-color: #b2fcb2;
+    border-color: #adf2ad;
+    color: #3a3a3a;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 480px) {
+    .container {
+        padding: 20px 15px;
+        margin: 10px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    .emotion-btn {
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    .button-container {
+        grid-template-columns: 1fr;
+    }
+
+    .verse-box {
+        font-size: 18px;
+        padding: 20px;
+    }
+}
