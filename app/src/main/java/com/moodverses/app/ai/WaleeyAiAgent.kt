@@ -331,7 +331,11 @@ How may I assist your contemplation and learning today?""",
         )
     }
 
-    suspend fun processQuery(userQuery: String, customApiKey: String? = null): ChatMessage = withContext(Dispatchers.IO) {
+    suspend fun processQuery(
+        userQuery: String,
+        history: List<ChatMessage> = emptyList(),
+        customApiKey: String? = null
+    ): ChatMessage = withContext(Dispatchers.IO) {
         val sanitized = sanitizeInput(userQuery)
         if (sanitized.isEmpty()) {
             return@withContext ChatMessage(
@@ -352,12 +356,10 @@ How may I assist your contemplation and learning today?""",
 
         val clean = sanitized.lowercase().trim()
 
-        // Greeting detection
+        // Greeting detection (only when user specifically greets)
         if (clean in listOf("salam", "assalam", "assalamu alaikum", "as-salamu alaykum", "hello", "hi", "hey")) {
             return@withContext ChatMessage(
-                text = """Wa Alaikum Assalam wa Rahmatullahi wa Barakatuh! 🌸
-
-May peace, mercy, and blessings of Allah be upon you. How can I assist you today with Quranic insights, Islamic history, or spiritual reflections?""",
+                text = "Wa Alaikum Assalam wa Rahmatullahi wa Barakatuh! 🌸 May peace and blessings of Allah be upon you. How may I assist your learning or reflection today?",
                 isUser = false,
                 suggestions = starterPrompts.shuffled().take(4)
             )
@@ -366,26 +368,24 @@ May peace, mercy, and blessings of Allah be upon you. How can I assist you today
         // Gratitude detection
         if (clean.contains("jazak") || clean.contains("thank") || clean.contains("shukran")) {
             return@withContext ChatMessage(
-                text = """Wa Iyyakum! (وَإِيَّاكُمْ - And may Allah reward you as well).
-
-May Allah increase you in beneficial knowledge, illuminate your heart with the light of the Quran, and grant you steadfastness. Feel free to ask any other questions anytime!""",
+                text = "Wa Iyyakum! (وَإِيَّاكُمْ - And may Allah reward you as well). May Allah increase you in beneficial knowledge and steadfastness. Feel free to ask any other questions anytime!",
                 isUser = false,
                 suggestions = starterPrompts.shuffled().take(4)
             )
         }
 
-        // 1. Try Live Gemini API if a key is provided (either from UI or configured in code)
+        // 1. Try Live Gemini API with conversation history context
         val apiKey = customApiKey?.trim()?.takeIf { it.isNotEmpty() }
             ?: GEMINI_API_KEY.trim().takeIf { it.isNotEmpty() }
 
         if (apiKey != null) {
-            val geminiResponse = callGeminiApi(userQuery, apiKey)
+            val geminiResponse = callGeminiApi(sanitized, history, apiKey)
             if (geminiResponse != null) {
                 return@withContext geminiResponse
             }
         }
 
-        // 2. Keyword scoring against our curated knowledge base (Offline Mode)
+        // 2. High-confidence match in curated offline database (only when offline or if direct match)
         var bestEntry: KnowledgeEntry? = null
         var bestScore = 0
 
@@ -408,7 +408,7 @@ May Allah increase you in beneficial knowledge, illuminate your heart with the l
             }
         }
 
-        if (bestEntry != null && bestScore >= 2) {
+        if (bestEntry != null && bestScore >= 5) {
             return@withContext ChatMessage(
                 text = bestEntry.answer,
                 isUser = false,
@@ -417,33 +417,25 @@ May Allah increase you in beneficial knowledge, illuminate your heart with the l
             )
         }
 
-        // 3. Fallback Islamic wisdom response for broader exploration
+        // 3. Fallback when network connection cannot reach AI
         return@withContext ChatMessage(
-            text = """بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+            text = """Seeking knowledge (*Talab al-'Ilm*) is a sacred pursuit in Islam.
 
-Thank you for your question on: *"${userQuery.trim()}"*.
+I am momentarily unable to connect to the live network to generate a complete and detailed answer for: *"${userQuery.trim()}"*.
 
-In Islam, seeking knowledge (*Talab al-'Ilm*) is an obligatory pursuit and a sacred pathway. Prophet Muhammad ﷺ said:
-*"Whoever treads a path seeking knowledge, Allah makes easy for him a path to Paradise."* [Sahih Muslim 2699]
-
-For matters of detailed personal Fiqh (rulings), it is always best to consult reputable qualified scholars in your local community. Meanwhile, here are foundational Quranic principles related to inquiry and contemplation:
-
-1. **Reflection & Contemplation (Tafakkur)**:
-   *"Then do they not reflect upon the Qur'an, or are there locks upon [their] hearts?"* [Surah Muhammad 47:24]
-2. **Asking People of Knowledge**:
-   *"So ask the people of the message if you do not know."* [Surah An-Nahl 16:43]
-3. **Trusting Allah's Wisdom**:
-   Every trial, decree, and moment of learning carries divine purpose and growth for the believing heart.
-
-Try exploring one of the topics below to learn more about our rich heritage and faith:""",
+Please ensure your internet connection is active, or tap one of the verified foundation topics below:""",
             isUser = false,
-            citations = listOf("Surah Muhammad 47:24", "Surah An-Nahl 16:43", "Sahih Muslim 2699"),
+            citations = listOf("Surah Muhammad 47:24", "Sahih Muslim 2699"),
             suggestions = starterPrompts.shuffled().take(4)
         )
     }
 
-    private fun callGeminiApi(prompt: String, apiKey: String): ChatMessage? {
-        val models = listOf("gemini-3.5-flash", "gemini-2.5-flash", "gemini-1.5-flash")
+    private fun callGeminiApi(
+        prompt: String,
+        history: List<ChatMessage>,
+        apiKey: String
+    ): ChatMessage? {
+        val models = listOf("gemini-3.5-flash", "gemini-2.5-flash")
         for (modelName in models) {
             try {
                 val urlString = "https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=$apiKey"
@@ -453,10 +445,38 @@ Try exploring one of the topics below to learn more about our rich heritage and 
                 conn.setRequestProperty("Content-Type", "application/json; utf-8")
                 conn.setRequestProperty("Accept", "application/json")
                 conn.doOutput = true
-                conn.connectTimeout = 12000
-                conn.readTimeout = 18000
+                conn.connectTimeout = 20000
+                conn.readTimeout = 35000
 
-                val systemInstruction = "You are Waleey (وَلِيّ) — Your Islamic AI Companion for the MoodVerses app. Answer questions about Islam, the Holy Quran, Sunnah, Islamic history, and Seerah with authentic citations (Surah:Ayah, Sahih Hadith). Be compassionate, moderate, uplifting, and format your answers with clean markdown bullet points and bold headings. Never wrap words in doubled quotation marks like \"\"word\"\"; use standard bold **word** instead."
+                val systemInstruction = "You are Waleey (وَلِيّ) — an Islamic AI Companion for the MoodVerses app. Answer questions about Islam, the Holy Quran, Sunnah, Islamic history, and Seerah with authentic citations (Surah:Ayah, Sahih Hadith).\n" +
+                        "- CRITICAL RULE: DO NOT start your response with 'Assalamu Alaikum', 'Wa Alaikum Assalam', or any greeting. The Islamic greeting has already been given once at the start of the chat. Jump immediately and directly into answering the question.\n" +
+                        "- Provide thorough, detailed, and completely finished explanations. NEVER truncate or stop mid-sentence.\n" +
+                        "- Format your answers with clear markdown bullet points and bold headings. Never wrap words in doubled quotation marks like \"\"word\"\"; use standard bold **word** instead."
+
+                val contentsArray = JSONArray()
+
+                // Include the last 6 messages of conversation history for rich context
+                val recentHistory = history.filter { !it.text.startsWith("Assalamu Alaikum wa Rahmatullahi") }.takeLast(6)
+                for (msg in recentHistory) {
+                    val role = if (msg.isUser) "user" else "model"
+                    val msgText = msg.text.trim()
+                    if (msgText.isNotBlank()) {
+                        contentsArray.put(JSONObject().apply {
+                            put("role", role)
+                            put("parts", JSONArray().apply {
+                                put(JSONObject().apply { put("text", msgText) })
+                            })
+                        })
+                    }
+                }
+
+                // Add current prompt
+                contentsArray.put(JSONObject().apply {
+                    put("role", "user")
+                    put("parts", JSONArray().apply {
+                        put(JSONObject().apply { put("text", prompt) })
+                    })
+                })
 
                 val jsonBody = JSONObject().apply {
                     put("system_instruction", JSONObject().apply {
@@ -464,16 +484,10 @@ Try exploring one of the topics below to learn more about our rich heritage and 
                             put(JSONObject().apply { put("text", systemInstruction) })
                         })
                     })
-                    put("contents", JSONArray().apply {
-                        put(JSONObject().apply {
-                            put("parts", JSONArray().apply {
-                                put(JSONObject().apply { put("text", prompt) })
-                            })
-                        })
-                    })
+                    put("contents", contentsArray)
                     put("generationConfig", JSONObject().apply {
-                        put("temperature", 0.7)
-                        put("maxOutputTokens", 1000)
+                        put("temperature", 0.65)
+                        put("maxOutputTokens", 2500)
                     })
                 }
 
@@ -496,9 +510,14 @@ Try exploring one of the topics below to learn more about our rich heritage and 
                         val parts = content?.optJSONArray("parts")
                         if (parts != null && parts.length() > 0) {
                             val rawReply = parts.getJSONObject(0).optString("text")
-                            val cleanReply = rawReply
+
+                            // Strip any repeated opening greetings and clean quotes
+                            var cleanReply = rawReply
+                                .replace(Regex("^(Wa\\s*Alaikum\\s*Assalam[^.!?,\\n]*[.!?,\\n]|Assalamu\\s*Alaikum[^.!?,\\n]*[.!?,\\n])", RegexOption.IGNORE_CASE), "")
                                 .replace(Regex("[\"“”]{2,}([^\"“”]+)[\"“”]{2,}"), "**$1**")
                                 .replace(Regex("'{2,}([^']+)('{2,})"), "*$1*")
+                                .trim()
+
                             return ChatMessage(
                                 text = cleanReply,
                                 isUser = false,
@@ -509,7 +528,7 @@ Try exploring one of the topics below to learn more about our rich heritage and 
                     }
                 }
             } catch (e: Exception) {
-                // Continue to next model or fallback
+                // Try next model or fallback
             }
         }
         return null

@@ -1,5 +1,6 @@
 package com.moodverses.app.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,243 +14,460 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.DeleteSweep
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.moodverses.app.R
 import com.moodverses.app.ai.ChatMessage
+import com.moodverses.app.ai.ChatSession
 import com.moodverses.app.ai.WaleeyAiAgent
+import com.moodverses.app.ai.WaleeyChatRepository
 import com.moodverses.app.ui.theme.*
 import kotlinx.coroutines.launch
 
 @Composable
 fun WaleeyScreen() {
-    val messages = remember { mutableStateListOf<ChatMessage>(WaleeyAiAgent.getInitialGreeting()) }
+    val context = LocalContext.current
+    val chatRepo = remember { WaleeyChatRepository(context) }
+    var sessions by remember { mutableStateOf(chatRepo.loadSessions()) }
+    var activeSessionId by remember { mutableStateOf(sessions.firstOrNull()?.id ?: "") }
+
+    val activeSession = remember(activeSessionId, sessions) {
+        sessions.find { it.id == activeSessionId } ?: sessions.firstOrNull() ?: ChatSession().also {
+            sessions = listOf(it)
+            activeSessionId = it.id
+        }
+    }
+
     var inputText by remember { mutableStateOf("") }
     var isThinking by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
+    fun createNewChat() {
+        val newSession = ChatSession()
+        chatRepo.saveSingleSession(newSession)
+        sessions = chatRepo.loadSessions()
+        activeSessionId = newSession.id
+        inputText = ""
+        coroutineScope.launch {
+            drawerState.close()
+        }
+    }
 
     fun sendMessage(text: String) {
         val query = WaleeyAiAgent.sanitizeInput(text)
         if (query.isEmpty() || isThinking) return
 
-        messages.add(ChatMessage(text = query, isUser = true))
+        val userMsg = ChatMessage(text = query, isUser = true)
+        val updatedMessages = activeSession.messages + userMsg
+
+        // Generate descriptive title from first question
+        val newTitle = if (activeSession.title == "New Conversation") {
+            chatRepo.generateTitle(query)
+        } else {
+            activeSession.title
+        }
+
+        val intermediateSession = activeSession.copy(
+            title = newTitle,
+            messages = updatedMessages,
+            updatedAt = System.currentTimeMillis()
+        )
+        chatRepo.saveSingleSession(intermediateSession)
+        sessions = chatRepo.loadSessions()
+
         inputText = ""
         isThinking = true
 
         coroutineScope.launch {
-            listState.animateScrollToItem(messages.size - 1)
-            val aiResponse = WaleeyAiAgent.processQuery(query)
-            messages.add(aiResponse)
+            listState.animateScrollToItem(updatedMessages.size - 1)
+            // Multi-turn contextual query
+            val aiResponse = WaleeyAiAgent.processQuery(query, history = updatedMessages)
+            val finalMessages = updatedMessages + aiResponse
+            val finalSession = intermediateSession.copy(
+                messages = finalMessages,
+                updatedAt = System.currentTimeMillis()
+            )
+            chatRepo.saveSingleSession(finalSession)
+            sessions = chatRepo.loadSessions()
             isThinking = false
-            listState.animateScrollToItem(messages.size - 1)
+            listState.animateScrollToItem(finalMessages.size - 1)
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(EmeraldDeep)
-            .padding(16.dp)
-    ) {
-        // Header
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(CircleShape)
-                        .background(EmeraldSurfaceVariant)
-                        .border(1.dp, GoldAccent, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.AutoAwesome,
-                        contentDescription = "Waleey AI",
-                        tint = GoldAccent,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = "Waleey",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextPrimary
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "(وَلِيّ)",
-                            fontSize = 15.sp,
-                            color = GoldLight,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                    Text(
-                        text = "Your Islamic AI Companion",
-                        fontSize = 11.5.sp,
-                        color = TextMuted
-                    )
-                }
-            }
-
-            IconButton(
-                onClick = {
-                    messages.clear()
-                    messages.add(WaleeyAiAgent.getInitialGreeting())
-                }
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet(
+                drawerContainerColor = EmeraldSurface,
+                drawerContentColor = TextPrimary,
+                modifier = Modifier.width(310.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.DeleteSweep,
-                    contentDescription = "Clear Chat",
-                    tint = TextMuted
-                )
-            }
-        }
-
-        // Horizontal Quick Prompts
-        Text(
-            text = "Suggested Inquiries:",
-            fontSize = 11.sp,
-            color = GoldLight,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(bottom = 6.dp)
-        )
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 12.dp)
-        ) {
-            items(WaleeyAiAgent.starterPrompts) { prompt ->
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = EmeraldSurface,
-                    border = CardDefaults.outlinedCardBorder().copy(brush = androidx.compose.ui.graphics.SolidColor(BorderSubtle)),
-                    modifier = Modifier.clickable { sendMessage(prompt) }
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
                 ) {
-                    Text(
-                        text = prompt,
-                        color = TextSecondary,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                    )
-                }
-            }
-        }
-
-        // Chat Message List
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(messages, key = { it.id }) { msg ->
-                ChatMessageItem(
-                    message = msg,
-                    onSuggestionClick = { suggestion ->
-                        sendMessage(suggestion)
-                    }
-                )
-            }
-
-            if (isThinking) {
-                item {
+                    // Drawer Header
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(EmeraldSurface)
-                            .padding(horizontal = 14.dp, vertical = 10.dp)
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp)
                     ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
-                            color = GoldAccent,
-                            strokeWidth = 2.dp
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(
-                            text = "Waleey is reflecting upon Islamic knowledge...",
-                            fontSize = 12.5.sp,
-                            color = TextSecondary
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                painter = painterResource(id = R.drawable.app_logo),
+                                contentDescription = "Logo",
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text(
+                                    text = "Chat History",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = TextPrimary
+                                )
+                                Text(
+                                    text = "سجل المحادثات",
+                                    fontSize = 12.sp,
+                                    color = GoldLight
+                                )
+                            }
+                        }
+
+                        IconButton(onClick = { coroutineScope.launch { drawerState.close() } }) {
+                            Icon(Icons.Default.Close, contentDescription = "Close", tint = TextMuted)
+                        }
+                    }
+
+                    // "+ New Chat" Button
+                    Button(
+                        onClick = { createNewChat() },
+                        colors = ButtonDefaults.buttonColors(containerColor = EmeraldSurfaceVariant),
+                        border = CardDefaults.outlinedCardBorder().copy(brush = androidx.compose.ui.graphics.SolidColor(GoldAccent)),
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp)
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = "New Chat", tint = GoldAccent)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("New Conversation", color = TextPrimary, fontWeight = FontWeight.SemiBold)
+                    }
+
+                    HorizontalDivider(color = BorderSubtle, thickness = 0.5.dp)
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = "PREVIOUS SESSIONS",
+                        fontSize = 11.sp,
+                        color = GoldLight,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    // Sessions List
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        items(sessions, key = { it.id }) { session ->
+                            val isSelected = session.id == activeSessionId
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = if (isSelected) EmeraldSurfaceVariant else Color.Transparent,
+                                border = if (isSelected) CardDefaults.outlinedCardBorder().copy(brush = androidx.compose.ui.graphics.SolidColor(BorderSubtle)) else null,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        activeSessionId = session.id
+                                        coroutineScope.launch { drawerState.close() }
+                                    }
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.ChatBubbleOutline,
+                                            contentDescription = null,
+                                            tint = if (isSelected) GoldAccent else TextMuted,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(10.dp))
+                                        Column {
+                                            Text(
+                                                text = session.title,
+                                                color = if (isSelected) GoldLight else TextPrimary,
+                                                fontSize = 13.5.sp,
+                                                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                            Text(
+                                                text = "${session.messages.count { it.isUser }} questions",
+                                                color = TextMuted,
+                                                fontSize = 11.sp
+                                            )
+                                        }
+                                    }
+
+                                    if (sessions.size > 1) {
+                                        IconButton(
+                                            onClick = {
+                                                val remaining = chatRepo.deleteSession(session.id)
+                                                sessions = remaining
+                                                if (activeSessionId == session.id) {
+                                                    activeSessionId = remaining.first().id
+                                                }
+                                            },
+                                            modifier = Modifier.size(28.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.DeleteOutline,
+                                                contentDescription = "Delete",
+                                                tint = TextMuted,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Input Field
-        Row(
+    ) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(24.dp))
-                .background(EmeraldSurface)
-                .border(1.dp, BorderSubtle, RoundedCornerShape(24.dp))
-                .padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize()
+                .background(EmeraldDeep)
+                .padding(16.dp)
         ) {
-            TextField(
-                value = inputText,
-                onValueChange = { if (it.length <= 400) inputText = it },
-                modifier = Modifier.weight(1f),
-                placeholder = {
-                    Text(
-                        "Ask about Seerah, Salah, History, Ayats...",
-                        color = Color.Gray,
-                        fontSize = 13.sp
-                    )
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedTextColor = TextPrimary,
-                    unfocusedTextColor = TextPrimary,
-                    cursorColor = GoldAccent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                ),
-                maxLines = 3
-            )
-
-            IconButton(
-                onClick = { sendMessage(inputText) },
-                enabled = inputText.isNotBlank() && !isThinking,
+            // Header
+            Row(
                 modifier = Modifier
-                    .clip(CircleShape)
-                    .background(if (inputText.isNotBlank() && !isThinking) EmeraldPrimary else EmeraldSurfaceVariant)
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Send,
-                    contentDescription = "Send",
-                    tint = if (inputText.isNotBlank() && !isThinking) EmeraldDeep else Color.Gray,
-                    modifier = Modifier.size(18.dp)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(
+                        onClick = { coroutineScope.launch { drawerState.open() } }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Menu,
+                            contentDescription = "History Menu",
+                            tint = GoldAccent,
+                            modifier = Modifier.size(26.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(4.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(EmeraldSurfaceVariant)
+                            .border(1.dp, GoldAccent, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AutoAwesome,
+                            contentDescription = "Waleey AI",
+                            tint = GoldAccent,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "Waleey",
+                                fontSize = 19.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "(وَلِيّ)",
+                                fontSize = 14.sp,
+                                color = GoldLight,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                        Text(
+                            text = "Your Islamic AI Companion",
+                            fontSize = 11.5.sp,
+                            color = TextMuted
+                        )
+                    }
+                }
+
+                IconButton(
+                    onClick = { createNewChat() }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AddComment,
+                        contentDescription = "New Chat",
+                        tint = GoldLight
+                    )
+                }
+            }
+
+            // Horizontal Quick Prompts
+            Text(
+                text = "Suggested Inquiries:",
+                fontSize = 11.sp,
+                color = GoldLight,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(bottom = 6.dp)
+            )
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp)
+            ) {
+                items(WaleeyAiAgent.starterPrompts) { prompt ->
+                    Surface(
+                        shape = RoundedCornerShape(20.dp),
+                        color = EmeraldSurface,
+                        border = CardDefaults.outlinedCardBorder().copy(brush = androidx.compose.ui.graphics.SolidColor(BorderSubtle)),
+                        modifier = Modifier.clickable { sendMessage(prompt) }
+                    ) {
+                        Text(
+                            text = prompt,
+                            color = TextSecondary,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                        )
+                    }
+                }
+            }
+
+            // Chat Message List
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(activeSession.messages, key = { it.id }) { msg ->
+                    ChatMessageItem(
+                        message = msg,
+                        onSuggestionClick = { suggestion ->
+                            sendMessage(suggestion)
+                        }
+                    )
+                }
+
+                if (isThinking) {
+                    item {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(EmeraldSurface)
+                                .padding(horizontal = 14.dp, vertical = 10.dp)
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                color = GoldAccent,
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(
+                                text = "Waleey is reflecting upon Islamic knowledge...",
+                                fontSize = 12.5.sp,
+                                color = TextSecondary
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Input Field
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(EmeraldSurface)
+                    .border(1.dp, BorderSubtle, RoundedCornerShape(24.dp))
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextField(
+                    value = inputText,
+                    onValueChange = { if (it.length <= 400) inputText = it },
+                    modifier = Modifier.weight(1f),
+                    placeholder = {
+                        Text(
+                            "Ask about Seerah, Salah, History, Ayats...",
+                            color = Color.Gray,
+                            fontSize = 13.sp
+                        )
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary,
+                        cursorColor = GoldAccent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    maxLines = 3
                 )
+
+                IconButton(
+                    onClick = { sendMessage(inputText) },
+                    enabled = inputText.isNotBlank() && !isThinking,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(if (inputText.isNotBlank() && !isThinking) EmeraldPrimary else EmeraldSurfaceVariant)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Send,
+                        contentDescription = "Send",
+                        tint = if (inputText.isNotBlank() && !isThinking) EmeraldDeep else Color.Gray,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
             }
         }
     }

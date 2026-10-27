@@ -19,4 +19,5 @@
 # Keep data models used by JSON and serialization
 -keepclassmembers class com.moodverses.app.model.** { *; }
 -keepclassmembers class com.moodverses.app.ai.ChatMessage { *; }
+-keepclassmembers class com.moodverses.app.ai.ChatSession { *; }
 -keepclassmembers class com.moodverses.app.ai.KnowledgeEntry { *; }
