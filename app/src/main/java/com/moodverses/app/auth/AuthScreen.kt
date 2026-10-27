@@ -3,6 +3,9 @@ package com.moodverses.app.auth
 import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,9 +31,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
 import com.moodverses.app.R
 import com.moodverses.app.ui.theme.*
 
@@ -40,6 +40,9 @@ fun AuthDialog(
     onAuthSuccess: () -> Unit
 ) {
     val context = LocalContext.current
+    val activity = context as? Activity
+
+    var selectedTab by remember { mutableIntStateOf(0) } // 0: Mobile OTP, 1: Email/Password
 
     // Email & Password States
     var isSignUpMode by remember { mutableStateOf(false) }
@@ -48,6 +51,11 @@ fun AuthDialog(
     var passwordInput by remember { mutableStateOf("") }
     var showForgotPasswordDialog by remember { mutableStateOf(false) }
     var forgotEmailInput by remember { mutableStateOf("") }
+
+    // Phone OTP States
+    var phoneNumberInput by remember { mutableStateOf("") }
+    var otpCodeInput by remember { mutableStateOf("") }
+    var phoneOtpState by remember { mutableStateOf<PhoneOtpState>(PhoneOtpState.Idle) }
 
     // Feedback messages
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -83,7 +91,7 @@ fun AuthDialog(
                 errorMessage = "Could not retrieve Google sign-in credentials."
             }
         } catch (e: ApiException) {
-            if (e.statusCode != 12501) { // 12501: User cancelled
+            if (e.statusCode != 12501) { // 12501: User dismissed Google account picker
                 errorMessage = "Google sign-in error (${e.statusCode}): ${e.localizedMessage}"
             }
         }
@@ -158,7 +166,7 @@ fun AuthDialog(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(22.dp),
+                    .padding(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Header Logo & Title
@@ -184,7 +192,7 @@ fun AuthDialog(
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "Cloud Chat Sync & Backup",
+                                text = "Cloud Chat Sync & Personalization",
                                 color = GoldLight,
                                 fontSize = 11.sp
                             )
@@ -196,7 +204,54 @@ fun AuthDialog(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(18.dp))
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Tab Selector
+                TabRow(
+                    selectedTabIndex = selectedTab,
+                    containerColor = EmeraldSurfaceVariant,
+                    contentColor = GoldAccent,
+                    divider = {},
+                    indicator = {},
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(14.dp))
+                ) {
+                    Tab(
+                        selected = selectedTab == 0,
+                        onClick = {
+                            selectedTab = 0
+                            errorMessage = null
+                            successMessage = null
+                        },
+                        text = {
+                            Text(
+                                "📱 Phone OTP",
+                                color = if (selectedTab == 0) GoldAccent else TextMuted,
+                                fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal,
+                                fontSize = 12.5.sp
+                            )
+                        }
+                    )
+                    Tab(
+                        selected = selectedTab == 1,
+                        onClick = {
+                            selectedTab = 1
+                            errorMessage = null
+                            successMessage = null
+                        },
+                        text = {
+                            Text(
+                                "✉️ Email & Pass",
+                                color = if (selectedTab == 1) GoldAccent else TextMuted,
+                                fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal,
+                                fontSize = 12.5.sp
+                            )
+                        }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Error / Success Banner
                 if (!errorMessage.isNullOrBlank()) {
@@ -235,14 +290,302 @@ fun AuthDialog(
                     }
                 }
 
-                // 1. ONE-TAP GOOGLE SIGN IN BUTTON
+                // TAB 0: PHONE NUMBER WITH OTP
+                if (selectedTab == 0) {
+                    when (val state = phoneOtpState) {
+                        is PhoneOtpState.Idle, is PhoneOtpState.SendingOtp, is PhoneOtpState.VerificationFailed -> {
+                            Text(
+                                text = "Sign in directly with your mobile number. No password required — we will send an SMS with a 6-digit verification code.",
+                                color = TextSecondary,
+                                fontSize = 12.5.sp,
+                                lineHeight = 18.sp,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(bottom = 12.dp)
+                            )
+
+                            OutlinedTextField(
+                                value = phoneNumberInput,
+                                onValueChange = { phoneNumberInput = it },
+                                label = { Text("Phone Number (+CountryCode)", color = TextMuted) },
+                                placeholder = { Text("+1... or +91...", color = Color.Gray) },
+                                leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null, tint = GoldAccent) },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                                singleLine = true,
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = GoldAccent,
+                                    unfocusedBorderColor = BorderSubtle,
+                                    focusedTextColor = TextPrimary,
+                                    unfocusedTextColor = TextPrimary
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Button(
+                                onClick = {
+                                    if (activity != null) {
+                                        errorMessage = null
+                                        AuthManager.sendPhoneVerificationCode(phoneNumberInput, activity) { newState ->
+                                            phoneOtpState = newState
+                                            if (newState is PhoneOtpState.VerificationFailed) {
+                                                val raw = newState.message
+                                                errorMessage = if (raw.contains("API key not valid", ignoreCase = true)) {
+                                                    "Firebase Setup Required: The app currently uses a template google-services.json. Download your project's google-services.json from console.firebase.google.com to enable real SMS OTPs."
+                                                } else {
+                                                    raw
+                                                }
+                                            } else if (newState is PhoneOtpState.VerifiedSuccess) {
+                                                onAuthSuccess()
+                                            }
+                                        }
+                                    }
+                                },
+                                enabled = phoneNumberInput.isNotBlank() && phoneOtpState !is PhoneOtpState.SendingOtp,
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = EmeraldPrimary),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(48.dp)
+                            ) {
+                                if (phoneOtpState is PhoneOtpState.SendingOtp) {
+                                    CircularProgressIndicator(modifier = Modifier.size(20.dp), color = EmeraldDeep)
+                                } else {
+                                    Text("Send Verification OTP", color = EmeraldDeep, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+
+                        is PhoneOtpState.CodeSent -> {
+                            Text(
+                                text = "OTP code sent to $phoneNumberInput. Enter the 6-digit code below:",
+                                color = GoldLight,
+                                fontSize = 13.sp,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(bottom = 12.dp)
+                            )
+
+                            OutlinedTextField(
+                                value = otpCodeInput,
+                                onValueChange = { if (it.length <= 6) otpCodeInput = it },
+                                label = { Text("6-Digit OTP Code", color = TextMuted) },
+                                placeholder = { Text("123456", color = Color.Gray) },
+                                leadingIcon = { Icon(Icons.Default.Pin, contentDescription = null, tint = GoldAccent) },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                singleLine = true,
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = GoldAccent,
+                                    unfocusedBorderColor = BorderSubtle,
+                                    focusedTextColor = TextPrimary,
+                                    unfocusedTextColor = TextPrimary
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            Spacer(modifier = Modifier.height(14.dp))
+
+                            Button(
+                                onClick = {
+                                    isLoading = true
+                                    AuthManager.verifyOtpAndSignIn(state.verificationId, otpCodeInput) { result ->
+                                        isLoading = false
+                                        when (result) {
+                                            is AuthResult.Success -> onAuthSuccess()
+                                            is AuthResult.Error -> errorMessage = result.message
+                                        }
+                                    }
+                                },
+                                enabled = otpCodeInput.length == 6 && !isLoading,
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = EmeraldPrimary),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(48.dp)
+                            ) {
+                                if (isLoading) {
+                                    CircularProgressIndicator(modifier = Modifier.size(20.dp), color = EmeraldDeep)
+                                } else {
+                                    Text("Verify & Sign In", color = EmeraldDeep, fontWeight = FontWeight.Bold)
+                                }
+                            }
+
+                            TextButton(
+                                onClick = { phoneOtpState = PhoneOtpState.Idle }
+                            ) {
+                                Text("Change Phone Number", color = TextMuted, fontSize = 12.sp)
+                            }
+                        }
+
+                        is PhoneOtpState.VerifiedSuccess -> {
+                            LaunchedEffect(Unit) {
+                                onAuthSuccess()
+                            }
+                        }
+                    }
+                }
+
+                // TAB 1: EMAIL & PASSWORD (SIGN IN / SIGN UP)
+                if (selectedTab == 1) {
+                    if (isSignUpMode) {
+                        OutlinedTextField(
+                            value = nameInput,
+                            onValueChange = { nameInput = it },
+                            label = { Text("Your Name", color = TextMuted) },
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = GoldAccent,
+                                unfocusedBorderColor = BorderSubtle,
+                                focusedTextColor = TextPrimary,
+                                unfocusedTextColor = TextPrimary
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    OutlinedTextField(
+                        value = emailInput,
+                        onValueChange = { emailInput = it },
+                        label = { Text("Email Address", color = TextMuted) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = GoldAccent,
+                            unfocusedBorderColor = BorderSubtle,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = passwordInput,
+                        onValueChange = { passwordInput = it },
+                        label = { Text("Password", color = TextMuted) },
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = GoldAccent,
+                            unfocusedBorderColor = BorderSubtle,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    if (!isSignUpMode) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            TextButton(
+                                onClick = {
+                                    forgotEmailInput = emailInput
+                                    showForgotPasswordDialog = true
+                                }
+                            ) {
+                                Text("Forgot Password?", color = GoldLight, fontSize = 12.sp)
+                            }
+                        }
+                    } else {
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+
+                    Button(
+                        onClick = {
+                            isLoading = true
+                            errorMessage = null
+                            if (isSignUpMode) {
+                                AuthManager.signUpWithEmail(emailInput, passwordInput, nameInput) { res ->
+                                    isLoading = false
+                                    when (res) {
+                                        is AuthResult.Success -> onAuthSuccess()
+                                        is AuthResult.Error -> {
+                                            val raw = res.message
+                                            errorMessage = if (raw.contains("API key not valid", ignoreCase = true)) {
+                                                "Firebase Setup Required: The app is using a template google-services.json. Download your real google-services.json from console.firebase.google.com to activate cloud accounts."
+                                            } else {
+                                                raw
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                AuthManager.signInWithEmail(emailInput, passwordInput) { res ->
+                                    isLoading = false
+                                    when (res) {
+                                        is AuthResult.Success -> onAuthSuccess()
+                                        is AuthResult.Error -> {
+                                            val raw = res.message
+                                            errorMessage = if (raw.contains("API key not valid", ignoreCase = true)) {
+                                                "Firebase Setup Required: The app is using a template google-services.json. Download your real google-services.json from console.firebase.google.com to activate cloud accounts."
+                                            } else {
+                                                raw
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        enabled = emailInput.isNotBlank() && passwordInput.isNotBlank() && !isLoading,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = EmeraldPrimary),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(modifier = Modifier.size(20.dp), color = EmeraldDeep)
+                        } else {
+                            Text(
+                                text = if (isSignUpMode) "Create Account" else "Sign In",
+                                color = EmeraldDeep,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = if (isSignUpMode) "Already have an account?" else "Don't have an account?",
+                            color = TextMuted,
+                            fontSize = 12.sp
+                        )
+                        TextButton(
+                            onClick = {
+                                isSignUpMode = !isSignUpMode
+                                errorMessage = null
+                            }
+                        ) {
+                            Text(
+                                text = if (isSignUpMode) "Sign In" else "Create one",
+                                color = GoldAccent,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                HorizontalDivider(color = BorderSubtle, thickness = 0.5.dp)
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // GOOGLE SIGN IN BUTTON
                 Surface(
-                    shape = RoundedCornerShape(14.dp),
+                    shape = RoundedCornerShape(12.dp),
                     color = EmeraldSurfaceVariant,
-                    border = CardDefaults.outlinedCardBorder().copy(brush = androidx.compose.ui.graphics.SolidColor(GoldAccent)),
+                    border = CardDefaults.outlinedCardBorder().copy(brush = androidx.compose.ui.graphics.SolidColor(BorderSubtle)),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp)
+                        .height(44.dp)
                         .clickable {
                             errorMessage = null
                             googleLauncher.launch(googleSignInClient.signInIntent)
@@ -257,193 +600,19 @@ fun AuthDialog(
                             imageVector = Icons.Default.AccountCircle,
                             contentDescription = "Google",
                             tint = GoldAccent,
-                            modifier = Modifier.size(22.dp)
+                            modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
                             text = "Continue with Google",
                             color = TextPrimary,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Divider: OR
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    HorizontalDivider(modifier = Modifier.weight(1f), color = BorderSubtle, thickness = 0.5.dp)
-                    Text(
-                        text = "  OR WITH EMAIL  ",
-                        color = TextMuted,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium,
-                        letterSpacing = 1.sp
-                    )
-                    HorizontalDivider(modifier = Modifier.weight(1f), color = BorderSubtle, thickness = 0.5.dp)
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // 2. EMAIL & PASSWORD FORM
-                if (isSignUpMode) {
-                    OutlinedTextField(
-                        value = nameInput,
-                        onValueChange = { nameInput = it },
-                        label = { Text("Your Name", color = TextMuted) },
-                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = GoldAccent) },
-                        singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = GoldAccent,
-                            unfocusedBorderColor = BorderSubtle,
-                            focusedTextColor = TextPrimary,
-                            unfocusedTextColor = TextPrimary
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                }
-
-                OutlinedTextField(
-                    value = emailInput,
-                    onValueChange = { emailInput = it },
-                    label = { Text("Email Address", color = TextMuted) },
-                    leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = GoldAccent) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = GoldAccent,
-                        unfocusedBorderColor = BorderSubtle,
-                        focusedTextColor = TextPrimary,
-                        unfocusedTextColor = TextPrimary
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                OutlinedTextField(
-                    value = passwordInput,
-                    onValueChange = { passwordInput = it },
-                    label = { Text("Password (min 6 characters)", color = TextMuted) },
-                    leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = GoldAccent) },
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = GoldAccent,
-                        unfocusedBorderColor = BorderSubtle,
-                        focusedTextColor = TextPrimary,
-                        unfocusedTextColor = TextPrimary
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                if (!isSignUpMode) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        TextButton(
-                            onClick = {
-                                forgotEmailInput = emailInput
-                                showForgotPasswordDialog = true
-                            }
-                        ) {
-                            Text("Forgot Password?", color = GoldLight, fontSize = 12.sp)
-                        }
-                    }
-                } else {
-                    Spacer(modifier = Modifier.height(12.dp))
-                }
-
-                Button(
-                    onClick = {
-                        isLoading = true
-                        errorMessage = null
-                        if (isSignUpMode) {
-                            AuthManager.signUpWithEmail(emailInput, passwordInput, nameInput) { res ->
-                                isLoading = false
-                                when (res) {
-                                    is AuthResult.Success -> onAuthSuccess()
-                                    is AuthResult.Error -> {
-                                        val raw = res.message
-                                        errorMessage = if (raw.contains("API key not valid", ignoreCase = true)) {
-                                            "Firebase Setup Required: Download your project's google-services.json to activate cloud accounts."
-                                        } else {
-                                            raw
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            AuthManager.signInWithEmail(emailInput, passwordInput) { res ->
-                                isLoading = false
-                                when (res) {
-                                    is AuthResult.Success -> onAuthSuccess()
-                                    is AuthResult.Error -> {
-                                        val raw = res.message
-                                        errorMessage = if (raw.contains("API key not valid", ignoreCase = true)) {
-                                            "Firebase Setup Required: Download your project's google-services.json to activate cloud accounts."
-                                        } else {
-                                            raw
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    enabled = emailInput.isNotBlank() && passwordInput.isNotBlank() && !isLoading,
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = EmeraldPrimary),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(modifier = Modifier.size(20.dp), color = EmeraldDeep)
-                    } else {
-                        Text(
-                            text = if (isSignUpMode) "Create Account" else "Sign In",
-                            color = EmeraldDeep,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
-                        )
-                    }
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = if (isSignUpMode) "Already have an account?" else "Don't have an account?",
-                        color = TextMuted,
-                        fontSize = 12.sp
-                    )
-                    TextButton(
-                        onClick = {
-                            isSignUpMode = !isSignUpMode
-                            errorMessage = null
-                        }
-                    ) {
-                        Text(
-                            text = if (isSignUpMode) "Sign In" else "Create one",
-                            color = GoldAccent,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
-                HorizontalDivider(color = BorderSubtle, thickness = 0.5.dp)
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Guest option
                 TextButton(onClick = onDismiss) {
