@@ -419,13 +419,30 @@ How may I assist your contemplation and learning today?""",
         return@withContext ChatMessage(
             text = """Seeking knowledge (*Talab al-'Ilm*) is a sacred pursuit in Islam.
 
-I am momentarily unable to connect to the live network to generate a complete and detailed answer for: *"${userQuery.trim()}"*.
+I am momentarily unable to reach the live network to generate a complete and detailed answer for: *"${userQuery.trim()}"*.
 
-Please ensure your internet connection is active, or tap one of the verified foundation topics below:""",
+Please ensure your device is connected to the internet and try asking again, or explore one of the related topics below:""",
             isUser = false,
-            citations = listOf("Surah Muhammad 47:24", "Sahih Muslim 2699"),
+            citations = emptyList(),
             suggestions = starterPrompts.shuffled().take(4)
         )
+    }
+
+    private fun extractAuthenticCitations(text: String): List<String> {
+        val citations = mutableListOf<String>()
+        val patterns = listOf(
+            Regex("(?:Surah|Surat)\\s+[A-Za-z'\\-]+(?:\\s+[A-Za-z'\\-]+)?\\s+\\d+:\\d+(?:-\\d+)?", RegexOption.IGNORE_CASE),
+            Regex("(?:Sahih\\s+al-Bukhari|Sahih\\s+Muslim|Sunan\\s+Abi\\s+Dawud|Jami'?\\s+at-Tirmidhi|Sunan\\s+an-Nasa'i|Sunan\\s+Ibn\\s+Majah|Muwatta\\s+Malik|Musnad\\s+Ahmad)\\s+\\d+", RegexOption.IGNORE_CASE)
+        )
+        for (pattern in patterns) {
+            for (match in pattern.findAll(text)) {
+                val citation = match.value.trim()
+                if (citation !in citations && citations.size < 4) {
+                    citations.add(citation)
+                }
+            }
+        }
+        return citations
     }
 
     private fun callGeminiApi(
@@ -531,7 +548,7 @@ Please ensure your internet connection is active, or tap one of the verified fou
                             return ChatMessage(
                                 text = cleanReply,
                                 isUser = false,
-                                citations = listOf("Google Gemini Live Knowledge", "Quran & Sunnah Principles"),
+                                citations = extractAuthenticCitations(cleanReply),
                                 suggestions = starterPrompts.shuffled().take(3)
                             )
                         }

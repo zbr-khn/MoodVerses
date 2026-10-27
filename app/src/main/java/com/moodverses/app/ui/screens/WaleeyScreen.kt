@@ -712,30 +712,65 @@ fun ChatMessageItem(
                             Spacer(modifier = Modifier.height(10.dp))
                             HorizontalDivider(color = BorderSubtle, thickness = 0.5.dp)
                             Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = "Verified References:",
-                                fontSize = 11.sp,
-                                color = GoldLight,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = "Verified References:",
+                                    fontSize = 11.sp,
+                                    color = GoldLight,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = "Tap to explore",
+                                    fontSize = 10.sp,
+                                    color = TextMuted
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(6.dp))
                             message.citations.forEach { citation ->
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.padding(vertical = 2.dp)
+                                Surface(
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = EmeraldSurfaceVariant.copy(alpha = 0.7f),
+                                    border = CardDefaults.outlinedCardBorder().copy(brush = androidx.compose.ui.graphics.SolidColor(BorderSubtle)),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 3.dp)
+                                        .clickable { onSuggestionClick("Explain the context of $citation in detail") }
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.MenuBook,
-                                        contentDescription = null,
-                                        tint = GoldAccent,
-                                        modifier = Modifier.size(12.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text(
-                                        text = citation,
-                                        fontSize = 11.sp,
-                                        color = TextSecondary
-                                    )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier.weight(1f)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Filled.MenuBook,
+                                                contentDescription = null,
+                                                tint = GoldAccent,
+                                                modifier = Modifier.size(13.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                text = citation,
+                                                fontSize = 11.5.sp,
+                                                color = TextPrimary,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
+                                        Icon(
+                                            imageVector = Icons.Default.ChevronRight,
+                                            contentDescription = "Explore",
+                                            tint = GoldLight,
+                                            modifier = Modifier.size(14.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
