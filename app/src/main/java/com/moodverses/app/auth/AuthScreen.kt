@@ -1,6 +1,11 @@
 package com.moodverses.app.auth
 
 import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -56,6 +61,41 @@ fun AuthDialog(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var successMessage by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(false) }
+
+    val webClientId = "989734168953-8e895cqm63hnrpt6g4tippnjeia1etfb.apps.googleusercontent.com"
+    val gso = remember {
+        GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(webClientId)
+            .requestEmail()
+            .build()
+    }
+    val googleSignInClient = remember { GoogleSignIn.getClient(context, gso) }
+
+    val googleLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            val idToken = account?.idToken
+            if (!idToken.isNullOrBlank()) {
+                isLoading = true
+                AuthManager.signInWithGoogleToken(idToken) { res ->
+                    isLoading = false
+                    when (res) {
+                        is AuthResult.Success -> onAuthSuccess()
+                        is AuthResult.Error -> errorMessage = res.message
+                    }
+                }
+            } else {
+                errorMessage = "Could not retrieve Google sign-in credentials."
+            }
+        } catch (e: ApiException) {
+            if (e.statusCode != 12501) { // 12501: User dismissed Google account picker
+                errorMessage = "Google sign-in error (${e.statusCode}): ${e.localizedMessage}"
+            }
+        }
+    }
 
     if (showForgotPasswordDialog) {
         AlertDialog(
@@ -547,7 +587,8 @@ fun AuthDialog(
                         .fillMaxWidth()
                         .height(44.dp)
                         .clickable {
-                            errorMessage = "Google Sign-In is configured. Link your google-services.json to activate one-tap login."
+                            errorMessage = null
+                            googleLauncher.launch(googleSignInClient.signInIntent)
                         }
                 ) {
                     Row(
