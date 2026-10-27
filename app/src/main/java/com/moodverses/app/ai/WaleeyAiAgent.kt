@@ -435,7 +435,7 @@ Please ensure your internet connection is active, or tap one of the verified fou
         history: List<ChatMessage>,
         apiKey: String
     ): ChatMessage? {
-        val models = listOf("gemini-3.5-flash", "gemini-2.5-flash")
+        val models = listOf("gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-3.5-flash", "gemini-flash-latest")
         for (modelName in models) {
             try {
                 val urlString = "https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=$apiKey"
@@ -446,7 +446,7 @@ Please ensure your internet connection is active, or tap one of the verified fou
                 conn.setRequestProperty("Accept", "application/json")
                 conn.doOutput = true
                 conn.connectTimeout = 20000
-                conn.readTimeout = 35000
+                conn.readTimeout = 40000
 
                 val systemInstruction = "You are Waleey (وَلِيّ) — an Islamic AI Companion for the MoodVerses app. Answer questions about Islam, the Holy Quran, Sunnah, Islamic history, and Seerah with authentic citations (Surah:Ayah, Sahih Hadith).\n" +
                         "- CRITICAL RULE: DO NOT start your response with 'Assalamu Alaikum', 'Wa Alaikum Assalam', or any greeting. The Islamic greeting has already been given once at the start of the chat. Jump immediately and directly into answering the question.\n" +
@@ -455,22 +455,34 @@ Please ensure your internet connection is active, or tap one of the verified fou
 
                 val contentsArray = JSONArray()
 
-                // Include the last 6 messages of conversation history for rich context
-                val recentHistory = history.filter { !it.text.startsWith("Assalamu Alaikum wa Rahmatullahi") }.takeLast(6)
-                for (msg in recentHistory) {
+                // Filter prior conversation history (exclude greeting and current prompt to avoid duplicates)
+                val priorHistory = history.filter { 
+                    !it.text.startsWith("Assalamu Alaikum wa Rahmatullahi") &&
+                    it.text.trim() != prompt.trim()
+                }.takeLast(6)
+
+                // Ensure strictly alternating user/model turns as required by Gemini multi-turn API
+                var lastRole = ""
+                for (msg in priorHistory) {
                     val role = if (msg.isUser) "user" else "model"
                     val msgText = msg.text.trim()
-                    if (msgText.isNotBlank()) {
+                    if (msgText.isNotBlank() && role != lastRole) {
                         contentsArray.put(JSONObject().apply {
                             put("role", role)
                             put("parts", JSONArray().apply {
                                 put(JSONObject().apply { put("text", msgText) })
                             })
                         })
+                        lastRole = role
                     }
                 }
 
-                // Add current prompt
+                // If the last turn was "user", remove it so the new prompt is the only ending user turn
+                if (lastRole == "user" && contentsArray.length() > 0) {
+                    contentsArray.remove(contentsArray.length() - 1)
+                }
+
+                // Add the current prompt as the final user message
                 contentsArray.put(JSONObject().apply {
                     put("role", "user")
                     put("parts", JSONArray().apply {
@@ -521,14 +533,16 @@ Please ensure your internet connection is active, or tap one of the verified fou
                             return ChatMessage(
                                 text = cleanReply,
                                 isUser = false,
-                                citations = listOf("Google Gemini 3.5 Live Knowledge", "Quran & Sunnah Principles"),
+                                citations = listOf("Google Gemini Live Knowledge", "Quran & Sunnah Principles"),
                                 suggestions = starterPrompts.shuffled().take(3)
                             )
                         }
                     }
+                } else {
+                    android.util.Log.e("WaleeyAi", "Gemini API HTTP $responseCode for model $modelName")
                 }
             } catch (e: Exception) {
-                // Try next model or fallback
+                android.util.Log.e("WaleeyAi", "Error calling Gemini model $modelName: ${e.message}")
             }
         }
         return null

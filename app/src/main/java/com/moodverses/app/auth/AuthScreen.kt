@@ -289,7 +289,12 @@ fun AuthDialog(
                                         AuthManager.sendPhoneVerificationCode(phoneNumberInput, activity) { newState ->
                                             phoneOtpState = newState
                                             if (newState is PhoneOtpState.VerificationFailed) {
-                                                errorMessage = newState.message
+                                                val raw = newState.message
+                                                errorMessage = if (raw.contains("API key not valid", ignoreCase = true)) {
+                                                    "Firebase Setup Required: The app currently uses a template google-services.json. Download your project's google-services.json from console.firebase.google.com to enable real SMS OTPs."
+                                                } else {
+                                                    raw
+                                                }
                                             } else if (newState is PhoneOtpState.VerifiedSuccess) {
                                                 onAuthSuccess()
                                             }
@@ -458,7 +463,14 @@ fun AuthDialog(
                                     isLoading = false
                                     when (res) {
                                         is AuthResult.Success -> onAuthSuccess()
-                                        is AuthResult.Error -> errorMessage = res.message
+                                        is AuthResult.Error -> {
+                                            val raw = res.message
+                                            errorMessage = if (raw.contains("API key not valid", ignoreCase = true)) {
+                                                "Firebase Setup Required: The app is using a template google-services.json. Download your real google-services.json from console.firebase.google.com to activate cloud accounts."
+                                            } else {
+                                                raw
+                                            }
+                                        }
                                     }
                                 }
                             } else {
@@ -466,7 +478,14 @@ fun AuthDialog(
                                     isLoading = false
                                     when (res) {
                                         is AuthResult.Success -> onAuthSuccess()
-                                        is AuthResult.Error -> errorMessage = res.message
+                                        is AuthResult.Error -> {
+                                            val raw = res.message
+                                            errorMessage = if (raw.contains("API key not valid", ignoreCase = true)) {
+                                                "Firebase Setup Required: The app is using a template google-services.json. Download your real google-services.json from console.firebase.google.com to activate cloud accounts."
+                                            } else {
+                                                raw
+                                            }
+                                        }
                                     }
                                 }
                             }
