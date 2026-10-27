@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.*
@@ -37,6 +38,9 @@ import com.moodverses.app.ai.ChatMessage
 import com.moodverses.app.ai.ChatSession
 import com.moodverses.app.ai.WaleeyAiAgent
 import com.moodverses.app.ai.WaleeyChatRepository
+import com.moodverses.app.auth.AuthDialog
+import com.moodverses.app.auth.AuthManager
+import com.moodverses.app.data.CloudSyncManager
 import com.moodverses.app.ui.theme.*
 import kotlinx.coroutines.launch
 
@@ -56,6 +60,9 @@ fun WaleeyScreen() {
 
     var inputText by remember { mutableStateOf("") }
     var isThinking by remember { mutableStateOf(false) }
+    var showAuthDialog by remember { mutableStateOf(false) }
+    var isLoggedIn by remember { mutableStateOf(AuthManager.isLoggedIn) }
+
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -109,6 +116,13 @@ fun WaleeyScreen() {
             sessions = chatRepo.loadSessions()
             isThinking = false
             listState.animateScrollToItem(finalMessages.size - 1)
+
+            // Sync to Firebase Cloud Firestore if logged in
+            if (AuthManager.isLoggedIn) {
+                AuthManager.currentUser?.uid?.let { uid ->
+                    CloudSyncManager.syncSessionToCloud(uid, finalSession)
+                }
+            }
         }
     }
 
@@ -243,10 +257,16 @@ fun WaleeyScreen() {
                                     if (sessions.size > 1) {
                                         IconButton(
                                             onClick = {
-                                                val remaining = chatRepo.deleteSession(session.id)
+                                                val toDeleteId = session.id
+                                                val remaining = chatRepo.deleteSession(toDeleteId)
                                                 sessions = remaining
-                                                if (activeSessionId == session.id) {
+                                                if (activeSessionId == toDeleteId) {
                                                     activeSessionId = remaining.first().id
+                                                }
+                                                if (AuthManager.isLoggedIn) {
+                                                    AuthManager.currentUser?.uid?.let { uid ->
+                                                        CloudSyncManager.deleteCloudSession(uid, toDeleteId)
+                                                    }
                                                 }
                                             },
                                             modifier = Modifier.size(28.dp)
@@ -259,6 +279,105 @@ fun WaleeyScreen() {
                                             )
                                         }
                                     }
+                                }
+                            }
+                        }
+                    }
+
+                    HorizontalDivider(color = BorderSubtle, thickness = 0.5.dp, modifier = Modifier.padding(vertical = 12.dp))
+
+                    // Account & Cloud Status Section
+                    Surface(
+                        shape = RoundedCornerShape(14.dp),
+                        color = EmeraldSurfaceVariant,
+                        border = CardDefaults.outlinedCardBorder().copy(brush = androidx.compose.ui.graphics.SolidColor(BorderSubtle)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(34.dp)
+                                            .clip(CircleShape)
+                                            .background(if (isLoggedIn) EmeraldPrimary.copy(alpha = 0.2f) else EmeraldDeep)
+                                            .border(1.dp, if (isLoggedIn) EmeraldPrimary else BorderSubtle, CircleShape),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = if (isLoggedIn) Icons.Default.CloudDone else Icons.Default.AccountCircle,
+                                            contentDescription = "Account",
+                                            tint = if (isLoggedIn) EmeraldPrimary else GoldLight,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Column {
+                                        Text(
+                                            text = if (isLoggedIn) {
+                                                AuthManager.currentUser?.displayName 
+                                                    ?: AuthManager.currentUser?.phoneNumber 
+                                                    ?: AuthManager.currentUser?.email 
+                                                    ?: "Sync Active"
+                                            } else {
+                                                "Guest Account"
+                                            },
+                                            color = TextPrimary,
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                        Text(
+                                            text = if (isLoggedIn) "Cloud Sync Enabled" else "Local Storage Only",
+                                            color = if (isLoggedIn) EmeraldPrimary else TextMuted,
+                                            fontSize = 11.sp
+                                        )
+                                    }
+                                }
+
+                                if (isLoggedIn) {
+                                    IconButton(
+                                        onClick = {
+                                            AuthManager.signOut()
+                                            isLoggedIn = false
+                                        },
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.Logout,
+                                            contentDescription = "Sign Out",
+                                            tint = TextMuted,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+                                }
+                            }
+
+                            if (!isLoggedIn) {
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Button(
+                                    onClick = {
+                                        coroutineScope.launch { drawerState.close() }
+                                        showAuthDialog = true
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = EmeraldPrimary),
+                                    shape = RoundedCornerShape(10.dp),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(36.dp),
+                                    contentPadding = PaddingValues(0.dp)
+                                ) {
+                                    Text(
+                                        text = "Sign In to Cloud Sync",
+                                        color = EmeraldDeep,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
                                 }
                             }
                         }
@@ -335,14 +454,25 @@ fun WaleeyScreen() {
                     }
                 }
 
-                IconButton(
-                    onClick = { createNewChat() }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.AddComment,
-                        contentDescription = "New Chat",
-                        tint = GoldLight
-                    )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(
+                        onClick = { showAuthDialog = true }
+                    ) {
+                        Icon(
+                            imageVector = if (isLoggedIn) Icons.Default.CloudDone else Icons.Default.AccountCircle,
+                            contentDescription = "Cloud Account",
+                            tint = if (isLoggedIn) EmeraldPrimary else GoldLight
+                        )
+                    }
+                    IconButton(
+                        onClick = { createNewChat() }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AddComment,
+                            contentDescription = "New Chat",
+                            tint = GoldLight
+                        )
+                    }
                 }
             }
 
@@ -470,6 +600,33 @@ fun WaleeyScreen() {
                 }
             }
         }
+    }
+
+    if (showAuthDialog) {
+        AuthDialog(
+            onDismiss = { showAuthDialog = false },
+            onAuthSuccess = {
+                isLoggedIn = true
+                showAuthDialog = false
+                val uid = AuthManager.currentUser?.uid
+                if (!uid.isNullOrBlank()) {
+                    // Upload current local sessions to cloud
+                    sessions.forEach { s ->
+                        CloudSyncManager.syncSessionToCloud(uid, s)
+                    }
+                    // Fetch all cloud sessions and merge locally
+                    CloudSyncManager.fetchUserSessions(uid) { cloudSessions ->
+                        if (cloudSessions.isNotEmpty()) {
+                            cloudSessions.forEach { chatRepo.saveSingleSession(it) }
+                            sessions = chatRepo.loadSessions()
+                            if (sessions.none { it.id == activeSessionId }) {
+                                activeSessionId = sessions.first().id
+                            }
+                        }
+                    }
+                }
+            }
+        )
     }
 }
 
