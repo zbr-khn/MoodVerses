@@ -496,10 +496,22 @@ fun AuthDialog(
 
                     Button(
                         onClick = {
+                            val cleanEmail = emailInput.trim()
+                            val cleanPassword = passwordInput.trim()
+
+                            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(cleanEmail).matches()) {
+                                errorMessage = "Please enter a valid email address."
+                                return@Button
+                            }
+                            if (cleanPassword.length < 6) {
+                                errorMessage = "Password must be at least 6 characters long."
+                                return@Button
+                            }
+
                             isLoading = true
                             errorMessage = null
                             if (isSignUpMode) {
-                                AuthManager.signUpWithEmail(emailInput, passwordInput, nameInput) { res ->
+                                AuthManager.signUpWithEmail(cleanEmail, cleanPassword, nameInput.trim()) { res ->
                                     isLoading = false
                                     when (res) {
                                         is AuthResult.Success -> onAuthSuccess()
@@ -514,7 +526,7 @@ fun AuthDialog(
                                     }
                                 }
                             } else {
-                                AuthManager.signInWithEmail(emailInput, passwordInput) { res ->
+                                AuthManager.signInWithEmail(cleanEmail, cleanPassword) { res ->
                                     isLoading = false
                                     when (res) {
                                         is AuthResult.Success -> onAuthSuccess()

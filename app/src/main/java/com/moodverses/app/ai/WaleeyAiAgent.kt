@@ -84,8 +84,11 @@ object WaleeyAiAgent {
      */
     fun sanitizeInput(input: String): String {
         return input.take(400)
-            .filter { it == '\n' || it == '\t' || !it.isISOControl() }
+            .filter { it == '\n' || it == '\t' || (!it.isISOControl() && it != '\u0000') }
             .replace(Regex("<[^>]*>"), "") // Strip HTML/script tags
+            .replace(Regex("(?i)javascript:"), "") // Strip javascript protocol
+            .replace(Regex("(?i)data:text/html"), "") // Strip data URI protocol
+            .replace(Regex("(?i)on\\w+\\s*="), "") // Strip inline event handlers (onerror=, onload=)
             .trim()
     }
 
