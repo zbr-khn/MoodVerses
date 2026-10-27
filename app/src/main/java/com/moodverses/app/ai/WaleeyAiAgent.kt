@@ -333,8 +333,7 @@ How may I assist your contemplation and learning today?""",
 
     suspend fun processQuery(
         userQuery: String,
-        history: List<ChatMessage> = emptyList(),
-        customApiKey: String? = null
+        history: List<ChatMessage> = emptyList()
     ): ChatMessage = withContext(Dispatchers.IO) {
         val sanitized = sanitizeInput(userQuery)
         if (sanitized.isEmpty()) {
@@ -374,9 +373,8 @@ How may I assist your contemplation and learning today?""",
             )
         }
 
-        // 1. Try Live Gemini API with conversation history context
-        val apiKey = customApiKey?.trim()?.takeIf { it.isNotEmpty() }
-            ?: GEMINI_API_KEY.trim().takeIf { it.isNotEmpty() }
+        // 1. Live Gemini AI with conversation history context
+        val apiKey = GEMINI_API_KEY.trim().takeIf { it.isNotEmpty() }
 
         if (apiKey != null) {
             val geminiResponse = callGeminiApi(sanitized, history, apiKey)

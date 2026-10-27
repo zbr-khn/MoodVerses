@@ -60,7 +60,7 @@
 - **Network Security Configuration**: Strict HTTPS enforcement (`cleartextTrafficPermitted="false"`).
 - **Data Protection**: `android:allowBackup="false"` to prevent unauthorized ADB data extraction.
 - **R8 / ProGuard Minification**: Code obfuscation and automated diagnostic log stripping in release builds.
-- **Secret Isolation**: API keys managed securely through `local.properties` and Gradle `BuildConfig` (strictly excluded from Git).
+- **Zero-Config AI Service**: Waleey AI runs completely out-of-the-box — users never need to provide, manage, or configure any API keys.
 
 ---
 
@@ -77,11 +77,7 @@
    git clone https://github.com/zbr-khn/MoodVerses.git
    ```
 2. Open the project in Android Studio.
-3. (Optional) Add your Gemini API key in `local.properties`:
-   ```properties
-   GEMINI_API_KEY=your_key_here
-   ```
-4. Build and run:
+3. Build and run:
    ```bash
    ./gradlew assembleDebug
    ```
