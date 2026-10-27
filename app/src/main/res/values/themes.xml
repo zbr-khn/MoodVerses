@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.MoodVerses" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">#041913</item>
+        <item name="android:windowBackground">#041913</item>
+    </style>
+</resources>
