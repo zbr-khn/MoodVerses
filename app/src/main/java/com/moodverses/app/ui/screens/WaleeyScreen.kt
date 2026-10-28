@@ -61,11 +61,14 @@ fun WaleeyScreen() {
     var inputText by remember { mutableStateOf("") }
     var isThinking by remember { mutableStateOf(false) }
     var showAuthDialog by remember { mutableStateOf(false) }
+    var showAccountDialog by remember { mutableStateOf(false) }
+    var showLogoutConfirmation by remember { mutableStateOf(false) }
     var isLoggedIn by remember { mutableStateOf(AuthManager.isLoggedIn) }
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val snackbarHostState = remember { SnackbarHostState() }
 
     fun createNewChat() {
         val newSession = ChatSession()
@@ -343,8 +346,8 @@ fun WaleeyScreen() {
                                 if (isLoggedIn) {
                                     IconButton(
                                         onClick = {
-                                            AuthManager.signOut()
-                                            isLoggedIn = false
+                                            coroutineScope.launch { drawerState.close() }
+                                            showLogoutConfirmation = true
                                         },
                                         modifier = Modifier.size(32.dp)
                                     ) {
@@ -386,12 +389,13 @@ fun WaleeyScreen() {
             }
         }
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(EmeraldDeep)
-                .padding(16.dp)
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(EmeraldDeep)
+                    .padding(16.dp)
+            ) {
             // Header
             Row(
                 modifier = Modifier
@@ -456,7 +460,13 @@ fun WaleeyScreen() {
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(
-                        onClick = { showAuthDialog = true }
+                        onClick = {
+                            if (isLoggedIn) {
+                                showAccountDialog = true
+                            } else {
+                                showAuthDialog = true
+                            }
+                        }
                     ) {
                         Icon(
                             imageVector = if (isLoggedIn) Icons.Default.CloudDone else Icons.Default.AccountCircle,
@@ -600,7 +610,15 @@ fun WaleeyScreen() {
                 }
             }
         }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 80.dp)
+        )
     }
+}
 
     if (showAuthDialog) {
         AuthDialog(
@@ -624,6 +642,108 @@ fun WaleeyScreen() {
                             }
                         }
                     }
+                }
+            }
+        )
+    }
+
+    if (showAccountDialog) {
+        val user = AuthManager.currentUser
+        val name = user?.displayName ?: "MoodVerses Believer"
+        val email = user?.email ?: user?.phoneNumber ?: "Authenticated User"
+
+        AlertDialog(
+            onDismissRequest = { showAccountDialog = false },
+            containerColor = EmeraldSurface,
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.AccountCircle,
+                        contentDescription = null,
+                        tint = GoldAccent,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Your Account", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                }
+            },
+            text = {
+                Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                    Text(name, color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(email, color = TextMuted, fontSize = 13.sp)
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = EmeraldSurfaceVariant,
+                        border = CardDefaults.outlinedCardBorder().copy(brush = androidx.compose.ui.graphics.SolidColor(EmeraldPrimary))
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Default.CloudDone, contentDescription = null, tint = EmeraldPrimary, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Cloud Sync Active • All chats & Ayat safely backed up", color = EmeraldPrimary, fontSize = 11.5.sp)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showAccountDialog = false
+                        showLogoutConfirmation = true
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0x33EF4444)),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Log Out", color = Color(0xFFFCA5A5), fontWeight = FontWeight.SemiBold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showAccountDialog = false }) {
+                    Text("Close", color = TextMuted)
+                }
+            }
+        )
+    }
+
+    if (showLogoutConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showLogoutConfirmation = false },
+            containerColor = EmeraldSurface,
+            title = {
+                Text("Log Out", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            },
+            text = {
+                Text(
+                    "Are you sure you want to log out from MoodVerses?",
+                    color = TextSecondary,
+                    fontSize = 14.sp
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        AuthManager.signOut()
+                        isLoggedIn = false
+                        showLogoutConfirmation = false
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar("You are logged out.")
+                        }
+                        android.widget.Toast.makeText(context, "You are logged out.", android.widget.Toast.LENGTH_SHORT).show()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Yes, Log Out", color = Color.White, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutConfirmation = false }) {
+                    Text("Cancel", color = TextMuted)
                 }
             }
         )
@@ -714,7 +834,6 @@ fun ChatMessageItem(
                             Spacer(modifier = Modifier.height(6.dp))
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween,
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
@@ -722,11 +841,6 @@ fun ChatMessageItem(
                                     fontSize = 11.sp,
                                     color = GoldLight,
                                     fontWeight = FontWeight.SemiBold
-                                )
-                                Text(
-                                    text = "Tap to explore",
-                                    fontSize = 10.sp,
-                                    color = TextMuted
                                 )
                             }
                             Spacer(modifier = Modifier.height(6.dp))
@@ -738,37 +852,24 @@ fun ChatMessageItem(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(vertical = 3.dp)
-                                        .clickable { onSuggestionClick("Explain the context of $citation in detail") }
                                 ) {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.SpaceBetween,
                                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
                                     ) {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            modifier = Modifier.weight(1f)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.MenuBook,
-                                                contentDescription = null,
-                                                tint = GoldAccent,
-                                                modifier = Modifier.size(13.dp)
-                                            )
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text(
-                                                text = citation,
-                                                fontSize = 11.5.sp,
-                                                color = TextPrimary,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis
-                                            )
-                                        }
                                         Icon(
-                                            imageVector = Icons.Default.ChevronRight,
-                                            contentDescription = "Explore",
-                                            tint = GoldLight,
-                                            modifier = Modifier.size(14.dp)
+                                            imageVector = Icons.AutoMirrored.Filled.MenuBook,
+                                            contentDescription = null,
+                                            tint = GoldAccent,
+                                            modifier = Modifier.size(13.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = citation,
+                                            fontSize = 11.5.sp,
+                                            color = TextPrimary,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
                                         )
                                     }
                                 }

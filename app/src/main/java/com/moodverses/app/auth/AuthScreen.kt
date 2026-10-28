@@ -1,6 +1,7 @@
 package com.moodverses.app.auth
 
 import android.app.Activity
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -83,7 +84,11 @@ fun AuthDialog(
                 AuthManager.signInWithGoogleToken(idToken) { res ->
                     isLoading = false
                     when (res) {
-                        is AuthResult.Success -> onAuthSuccess()
+                        is AuthResult.Success -> {
+                            val name = account.displayName ?: AuthManager.currentUser?.displayName ?: "User"
+                            Toast.makeText(context, "Welcome back, $name! 🌸", Toast.LENGTH_SHORT).show()
+                            onAuthSuccess()
+                        }
                         is AuthResult.Error -> errorMessage = res.message
                     }
                 }
@@ -390,7 +395,11 @@ fun AuthDialog(
                                     AuthManager.verifyOtpAndSignIn(state.verificationId, otpCodeInput) { result ->
                                         isLoading = false
                                         when (result) {
-                                            is AuthResult.Success -> onAuthSuccess()
+                                            is AuthResult.Success -> {
+                                                val name = AuthManager.currentUser?.displayName ?: "User"
+                                                Toast.makeText(context, "Welcome back, $name! 🌸", Toast.LENGTH_SHORT).show()
+                                                onAuthSuccess()
+                                            }
                                             is AuthResult.Error -> errorMessage = result.message
                                         }
                                     }
@@ -514,7 +523,11 @@ fun AuthDialog(
                                 AuthManager.signUpWithEmail(cleanEmail, cleanPassword, nameInput.trim()) { res ->
                                     isLoading = false
                                     when (res) {
-                                        is AuthResult.Success -> onAuthSuccess()
+                                        is AuthResult.Success -> {
+                                            val name = nameInput.trim().ifEmpty { cleanEmail.substringBefore("@").replaceFirstChar { it.uppercase() } }
+                                            Toast.makeText(context, "Welcome, $name! 🌟 Your account has been created.", Toast.LENGTH_LONG).show()
+                                            onAuthSuccess()
+                                        }
                                         is AuthResult.Error -> {
                                             val raw = res.message
                                             errorMessage = if (raw.contains("API key not valid", ignoreCase = true)) {
@@ -529,7 +542,12 @@ fun AuthDialog(
                                 AuthManager.signInWithEmail(cleanEmail, cleanPassword) { res ->
                                     isLoading = false
                                     when (res) {
-                                        is AuthResult.Success -> onAuthSuccess()
+                                        is AuthResult.Success -> {
+                                            val name = AuthManager.currentUser?.displayName?.ifEmpty { null }
+                                                ?: cleanEmail.substringBefore("@").replaceFirstChar { it.uppercase() }
+                                            Toast.makeText(context, "Welcome back, $name! 🌸", Toast.LENGTH_SHORT).show()
+                                            onAuthSuccess()
+                                        }
                                         is AuthResult.Error -> {
                                             val raw = res.message
                                             errorMessage = if (raw.contains("API key not valid", ignoreCase = true)) {
