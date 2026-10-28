@@ -50,6 +50,27 @@ object AuthManager {
         }
     }
 
+    fun getCustomUserName(context: android.content.Context): String? {
+        val user = currentUser
+        if (!user?.displayName.isNullOrBlank()) return user!!.displayName
+        val sp = context.getSharedPreferences("moodverses_user_prefs", android.content.Context.MODE_PRIVATE)
+        return sp.getString("user_custom_name", null)
+    }
+
+    fun saveCustomUserName(context: android.content.Context, name: String) {
+        val clean = name.trim()
+        val sp = context.getSharedPreferences("moodverses_user_prefs", android.content.Context.MODE_PRIVATE)
+        sp.edit().putString("user_custom_name", clean).apply()
+        currentUser?.let { user ->
+            if (clean.isNotEmpty()) {
+                val profileUpdates = UserProfileChangeRequest.Builder()
+                    .setDisplayName(clean)
+                    .build()
+                user.updateProfile(profileUpdates)
+            }
+        }
+    }
+
     /**
      * 1. Email & Password Registration
      */

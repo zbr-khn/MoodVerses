@@ -315,9 +315,10 @@ The Three Levels of Fasting (as described by Imam Al-Ghazali):
         )
     )
 
-    fun getInitialGreeting(): ChatMessage {
+    fun getInitialGreeting(userName: String? = null): ChatMessage {
+        val nameGreeting = if (!userName.isNullOrBlank()) ", $userName" else ""
         return ChatMessage(
-            text = """Assalamu Alaikum wa Rahmatullahi wa Barakatuh! 🌿
+            text = """Assalamu Alaikum wa Rahmatullahi wa Barakatuh$nameGreeting! 🌿
 
 I am **Waleey (وَلِيّ) — Your Islamic AI Companion**, here to accompany your journey through the timeless guidance of the Holy Quran, Prophetic Seerah, and Islamic history.
 
@@ -336,7 +337,8 @@ How may I assist your contemplation and learning today?""",
 
     suspend fun processQuery(
         userQuery: String,
-        history: List<ChatMessage> = emptyList()
+        history: List<ChatMessage> = emptyList(),
+        userName: String? = null
     ): ChatMessage = withContext(Dispatchers.IO) {
         val sanitized = sanitizeInput(userQuery)
         if (sanitized.isEmpty()) {
@@ -359,9 +361,10 @@ How may I assist your contemplation and learning today?""",
         val clean = sanitized.lowercase().trim()
 
         // Greeting detection (only when user specifically greets)
+        val namePart = if (!userName.isNullOrBlank()) ", $userName" else ""
         if (clean in listOf("salam", "assalam", "assalamu alaikum", "as-salamu alaykum", "hello", "hi", "hey")) {
             return@withContext ChatMessage(
-                text = "Wa Alaikum Assalam wa Rahmatullahi wa Barakatuh! 🌸 May peace and blessings of Allah be upon you. How may I assist your learning or reflection today?",
+                text = "Wa Alaikum Assalam wa Rahmatullahi wa Barakatuh$namePart! 🌸 May peace and blessings of Allah be upon you. How may I assist your learning or reflection today?",
                 isUser = false,
                 suggestions = starterPrompts.shuffled().take(4)
             )
@@ -380,7 +383,7 @@ How may I assist your contemplation and learning today?""",
         val apiKey = GEMINI_API_KEY.trim().takeIf { it.isNotEmpty() }
 
         if (apiKey != null) {
-            val geminiResponse = callGeminiApi(sanitized, history, apiKey)
+            val geminiResponse = callGeminiApi(sanitized, history, apiKey, userName)
             if (geminiResponse != null) {
                 return@withContext geminiResponse
             }
@@ -451,7 +454,8 @@ Please ensure your device is connected to the internet and try asking again, or 
     private fun callGeminiApi(
         prompt: String,
         history: List<ChatMessage>,
-        apiKey: String
+        apiKey: String,
+        userName: String? = null
     ): ChatMessage? {
         val models = listOf("gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-3.5-flash", "gemini-flash-latest")
         for (modelName in models) {
@@ -466,10 +470,12 @@ Please ensure your device is connected to the internet and try asking again, or 
                 conn.connectTimeout = 20000
                 conn.readTimeout = 40000
 
-                val systemInstruction = "You are Waleey (وَلِيّ) — an Islamic AI Companion for the MoodVerses app. Answer questions about Islam, the Holy Quran, Sunnah, Islamic history, and Seerah with authentic citations (Surah:Ayah, Sahih Hadith).\n" +
+                val nameInstruction = if (!userName.isNullOrBlank()) "The user's name is $userName. Address them respectfully by name when appropriate.\n" else ""
+                val systemInstruction = "You are Waleey (وَلِيّ) — an Islamic AI Companion for the MoodVerses platform. Answer questions about Islam, the Holy Quran, Sunnah, Islamic history, and Seerah with authentic citations (Surah:Ayah, Sahih Hadith).\n" +
+                        nameInstruction +
                         "- CRITICAL RULE: DO NOT start your response with 'Assalamu Alaikum', 'Wa Alaikum Assalam', or any greeting. The Islamic greeting has already been given once at the start of the chat. Jump immediately and directly into answering the question.\n" +
                         "- Provide thorough, detailed, and completely finished explanations. NEVER truncate or stop mid-sentence.\n" +
-                        "- Format your answers with clear markdown bullet points and bold headings. Never wrap words in doubled quotation marks like \"\"word\"\"; use standard bold **word** instead."
+                        "- Format your answers with clear markdown bullet points and bold headings. Never wrap words in doubled quotation marks; use standard bold **word** instead."
 
                 val contentsArray = JSONArray()
 

@@ -64,6 +64,7 @@ fun WaleeyScreen() {
     var showAccountDialog by remember { mutableStateOf(false) }
     var showLogoutConfirmation by remember { mutableStateOf(false) }
     var isLoggedIn by remember { mutableStateOf(AuthManager.isLoggedIn) }
+    var userName by remember { mutableStateOf(AuthManager.getCustomUserName(context)) }
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -108,8 +109,8 @@ fun WaleeyScreen() {
 
         coroutineScope.launch {
             listState.animateScrollToItem(updatedMessages.size - 1)
-            // Multi-turn contextual query
-            val aiResponse = WaleeyAiAgent.processQuery(query, history = updatedMessages)
+            // Multi-turn contextual query with personalized greeting
+            val aiResponse = WaleeyAiAgent.processQuery(query, history = updatedMessages, userName = userName)
             val finalMessages = updatedMessages + aiResponse
             val finalSession = intermediateSession.copy(
                 messages = finalMessages,
@@ -451,7 +452,7 @@ fun WaleeyScreen() {
                             )
                         }
                         Text(
-                            text = "Your Islamic AI Companion",
+                            text = if (!userName.isNullOrBlank()) "Assalamu Alaikum, $userName" else "Your Islamic AI Companion",
                             fontSize = 11.5.sp,
                             color = TextMuted
                         )
@@ -460,17 +461,11 @@ fun WaleeyScreen() {
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(
-                        onClick = {
-                            if (isLoggedIn) {
-                                showAccountDialog = true
-                            } else {
-                                showAuthDialog = true
-                            }
-                        }
+                        onClick = { showAccountDialog = true }
                     ) {
                         Icon(
-                            imageVector = if (isLoggedIn) Icons.Default.CloudDone else Icons.Default.AccountCircle,
-                            contentDescription = "Cloud Account",
+                            imageVector = Icons.Default.AccountCircle,
+                            contentDescription = "User Profile",
                             tint = if (isLoggedIn) EmeraldPrimary else GoldLight
                         )
                     }
@@ -649,8 +644,8 @@ fun WaleeyScreen() {
 
     if (showAccountDialog) {
         val user = AuthManager.currentUser
-        val name = user?.displayName ?: "MoodVerses Believer"
-        val email = user?.email ?: user?.phoneNumber ?: "Authenticated User"
+        var editingName by remember { mutableStateOf(userName ?: AuthManager.getCustomUserName(context) ?: "") }
+        var nameSavedMessage by remember { mutableStateOf<String?>(null) }
 
         AlertDialog(
             onDismissRequest = { showAccountDialog = false },
@@ -658,53 +653,119 @@ fun WaleeyScreen() {
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        imageVector = Icons.Default.AccountCircle,
+                        imageVector = Icons.Default.Badge,
                         contentDescription = null,
                         tint = GoldAccent,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Your Account", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Text("User Profile", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 }
             },
             text = {
                 Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-                    Text(name, color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(email, color = TextMuted, fontSize = 13.sp)
+                    Text("Your Name (Greeting for Waleey AI)", color = GoldLight, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        OutlinedTextField(
+                            value = editingName,
+                            onValueChange = { editingName = it },
+                            placeholder = { Text("Enter your name (e.g. Zubair)", color = TextMuted, fontSize = 13.sp) },
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = GoldAccent,
+                                unfocusedBorderColor = BorderSubtle,
+                                focusedTextColor = TextPrimary,
+                                unfocusedTextColor = TextPrimary
+                            ),
+                            modifier = Modifier.weight(1f)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(
+                            onClick = {
+                                val clean = editingName.trim()
+                                if (clean.isNotEmpty()) {
+                                    AuthManager.saveCustomUserName(context, clean)
+                                    userName = clean
+                                    nameSavedMessage = "Saved as \"$clean\""
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = EmeraldPrimary),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text("Save", color = EmeraldDeep, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        }
+                    }
+
+                    if (nameSavedMessage != null) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(nameSavedMessage!!, color = EmeraldPrimary, fontSize = 11.5.sp)
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+                    HorizontalDivider(color = BorderSubtle, thickness = 0.5.dp)
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    Surface(
-                        shape = RoundedCornerShape(10.dp),
-                        color = EmeraldSurfaceVariant,
-                        border = CardDefaults.outlinedCardBorder().copy(brush = androidx.compose.ui.graphics.SolidColor(EmeraldPrimary))
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(10.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                    if (isLoggedIn) {
+                        val emailOrPhone = user?.email ?: user?.phoneNumber ?: "Authenticated User"
+                        Surface(
+                            shape = RoundedCornerShape(10.dp),
+                            color = EmeraldSurfaceVariant,
+                            border = CardDefaults.outlinedCardBorder().copy(brush = androidx.compose.ui.graphics.SolidColor(EmeraldPrimary))
                         ) {
-                            Icon(Icons.Default.CloudDone, contentDescription = null, tint = EmeraldPrimary, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Cloud Sync Active • All chats & Ayat safely backed up", color = EmeraldPrimary, fontSize = 11.5.sp)
+                            Column(modifier = Modifier.fillMaxWidth().padding(10.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.CloudDone, contentDescription = null, tint = EmeraldPrimary, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("Cloud Sync Active", color = EmeraldPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(emailOrPhone, color = TextSecondary, fontSize = 12.sp)
+                            }
+                        }
+                    } else {
+                        Surface(
+                            shape = RoundedCornerShape(10.dp),
+                            color = EmeraldSurfaceVariant,
+                            border = CardDefaults.outlinedCardBorder().copy(brush = androidx.compose.ui.graphics.SolidColor(BorderSubtle))
+                        ) {
+                            Column(modifier = Modifier.fillMaxWidth().padding(10.dp)) {
+                                Text("Guest Account", color = GoldLight, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("All chats and favorites are stored locally. Sign in to sync across devices.", color = TextMuted, fontSize = 11.5.sp)
+                            }
                         }
                     }
                 }
             },
             confirmButton = {
-                Button(
-                    onClick = {
-                        showAccountDialog = false
-                        showLogoutConfirmation = true
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0x33EF4444)),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text("Log Out", color = Color(0xFFFCA5A5), fontWeight = FontWeight.SemiBold)
+                if (isLoggedIn) {
+                    Button(
+                        onClick = {
+                            showAccountDialog = false
+                            showLogoutConfirmation = true
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0x33EF4444)),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Log Out", color = Color(0xFFFCA5A5), fontWeight = FontWeight.SemiBold)
+                    }
+                } else {
+                    Button(
+                        onClick = {
+                            showAccountDialog = false
+                            showAuthDialog = true
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = EmeraldPrimary),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Sign In / Create Account", color = EmeraldDeep, fontWeight = FontWeight.Bold)
+                    }
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showAccountDialog = false }) {
-                    Text("Close", color = TextMuted)
+                    Text("Done", color = TextMuted)
                 }
             }
         )
