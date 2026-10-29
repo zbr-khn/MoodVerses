@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // User data is strictly isolated: Users can only read and write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // Chat sessions under users/{userId}/chat_sessions/{sessionId}
+      match /chat_sessions/{sessionId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // Favorite/Liked Ayahs under users/{userId}/favorite_ayahs/{verseId}
+      match /favorite_ayahs/{verseId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // Default Deny: All other collections and routes are strictly forbidden
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

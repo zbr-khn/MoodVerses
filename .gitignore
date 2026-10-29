@@ -1,0 +1,49 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Android Studio
+.gradle/
+build/
+captures/
+/android/app/google-services.json
+/android/local.properties
+
+# Visual Studio Code
+.vscode/
+
+# Flutter repo-specific
+/bin/cache/
+/packages/flutter_tools/test/data/create_flutter_project/
+
+# Symbol processing
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+
+# Firebase
+lib/firebase_options.dart
+**/google-services.json
+.firebase/
+firebase-debug.log*
+
+# Android
+android/key.properties
+android/local.properties
+*.keystore
+*.jks

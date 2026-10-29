@@ -1,0 +1,35 @@
+name: moodverses
+description: "MoodVerses - Native Islamic Application with Jetpack Compose aesthetic, Quranic reflections, and Waleey AI Companion."
+publish_to: 'none'
+version: 2.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Firebase Suite
+  firebase_core: ^3.10.0
+  firebase_auth: ^5.4.1
+  cloud_firestore: ^5.6.1
+  google_sign_in: ^6.2.2
+
+  # AI & Networking
+  http: ^1.2.2
+
+  # Storage & Utilities
+  shared_preferences: ^2.3.5
+  path_provider: ^2.1.5
+  uuid: ^4.5.1
+  flutter_markdown: ^0.7.5
+  google_fonts: ^6.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
