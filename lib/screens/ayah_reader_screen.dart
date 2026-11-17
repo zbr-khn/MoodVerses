@@ -111,7 +111,7 @@ class _AyahReaderScreenState extends State<AyahReaderScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(isNowFav ? 'Saved to Favorites ❤️' : 'Removed from Favorites'),
+            content: Text(isNowFav ? 'Saved to Favorites' : 'Removed from Favorites'),
             duration: const Duration(seconds: 1),
           ),
         );
@@ -121,7 +121,7 @@ class _AyahReaderScreenState extends State<AyahReaderScreen> {
 
   void _copyVerse(QuranVerse verse) {
     Clipboard.setData(ClipboardData(
-      text: '${verse.arabicText}\n\n"${verse.translation}"\n— ${verse.reference}',
+      text: '${verse.arabicText}\n\n"${verse.translation}"\n- ${verse.reference}',
     ));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(

@@ -51,7 +51,7 @@ class WaleeyAiService {
           "The Angel Jibreel (AS) descended alongside the Angel of Mountains, who asked permission to crush the city between the two surrounding mountains (Al-Akhshabayn).\n\n"
           "The Prophet ﷺ replied with timeless mercy:\n"
           "*\"No, rather I hope that Allah will bring forth from their loins descendants who will worship Allah alone without associating any partners with Him.\"*\n\n"
-          "✨ **Lesson**: Never let the cruelty of others extinguish your compassion. Even in his deepest pain, Rasulullah ﷺ prayed for the guidance of his persecutors.",
+          "**Key Lesson**: Never let the cruelty of others extinguish your compassion. Even in his deepest pain, Rasulullah ﷺ prayed for the guidance of his persecutors.",
       citations: ["Sahih al-Bukhari 3231", "Sahih Muslim 1795"],
       suggestions: ["Conquest of Makkah", "The Year of Sorrow", "Treaty of Hudaybiyyah"],
     ),
@@ -61,12 +61,12 @@ class WaleeyAiService {
       keywords: ["quran", "compilation", "compiled", "uthman", "abu bakr", "zaid ibn thabit", "mushaf", "manuscript", "preserved"],
       answer: "The preservation and compilation of the Quran unfolded through three meticulously documented historical stages:\n\n"
           "1. **During the Lifetime of the Prophet ﷺ (Oral & Inscribed Records)**:\n"
-          "Whenever an Ayah was revealed, the Prophet ﷺ designated official scribes (Kuttab al-Wahy)—including Zaid ibn Thabit, Ali ibn Abi Talib, and Ubayy ibn Ka'b—to write it down on parchment, leather, and palm leaves, while thousands of Sahabah memorized every verse.\n\n"
+          "Whenever an Ayah was revealed, the Prophet ﷺ designated official scribes (Kuttab al-Wahy), including Zaid ibn Thabit, Ali ibn Abi Talib, and Ubayy ibn Ka'b, to write it down on parchment, leather, and palm leaves, while thousands of Sahabah memorized every verse.\n\n"
           "2. **The Era of Caliph Abu Bakr As-Siddiq (RA)**:\n"
           "Following the Battle of Yamama (632 CE) where many Huffaz were martyred, Umar (RA) proposed gathering all manuscripts into a single codex. Abu Bakr appointed Zaid ibn Thabit (RA) to lead the task with two eyewitnesses required for every written verse. This primary collection was safeguarded with Hafsah bint Umar (RA).\n\n"
           "3. **The Era of Caliph Uthman ibn Affan (RA) (Standardization)**:\n"
           "In 650 CE, Caliph Uthman (RA) formed a committee headed by Zaid ibn Thabit to transcribe standard copies based on the original Quraysh dialect, sending copies to major capitals.\n\n"
-          "✨ **Divine Guarantee**: *\"Indeed, it is We who sent down the Qur'an and indeed, We will be its guardian.\"* [Surah Al-Hijr 15:9]",
+          "**Divine Guarantee**: *\"Indeed, it is We who sent down the Qur'an and indeed, We will be its guardian.\"* [Surah Al-Hijr 15:9]",
       citations: ["Surah Al-Hijr 15:9", "Sahih al-Bukhari 4986", "Sahih al-Bukhari 4987"],
       suggestions: ["Who was Zaid ibn Thabit?", "The 4 Caliphs (Khulafa)", "Surah Al-Kahf background"],
     ),
@@ -114,7 +114,7 @@ class WaleeyAiService {
           "4. **Ibn Sina (Avicenna) (980–1037 CE)**:\n"
           "- Authored *The Canon of Medicine*, standard in Europe for 600 years.\n\n"
           "5. **Fatima al-Fihri (859 CE)**:\n"
-          "- Founded the **University of al-Qarawiyyin** in Morocco—the world's oldest university.",
+          "- Founded the **University of al-Qarawiyyin** in Morocco, recognized as the world's oldest continually operating university.",
       citations: ["Surah Yunus 10:101", "Surah Ali 'Imran 3:190-191"],
       suggestions: ["The 4 Caliphs (Khulafa)", "Who was Imam Bukhari?", "How the Quran was compiled"],
     ),
@@ -127,7 +127,7 @@ class WaleeyAiService {
           "- Prophet Muhammad ﷺ named the year he lost Khadijah (RA) and Abu Talib *\"The Year of Sorrow\"*.\n\n"
           "Islamic pillars for emotional healing:\n"
           "1. **Resilience & Sabr**: *\"And seek help through patience and prayer...\"* [Surah Al-Baqarah 2:45]\n"
-          "2. **Every Pain Expiates Sins**: *\"No fatigue, illness, anxiety, or sorrow befalls a Muslim—even the prick of a thorn—except that Allah expiates some of their sins through it.\"* [Bukhari]\n"
+          "2. **Every Pain Expiates Sins**: *\"No fatigue, illness, anxiety, or sorrow befalls a Muslim - even the prick of a thorn - except that Allah expiates some of their sins through it.\"* [Bukhari]\n"
           "3. **The Prophetic Du'a for Anxiety**:\n"
           "*«اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَالْعَجْزِ وَالْكَسَلِ، وَالْبُخْلِ وَالْجُبْنِ، وَضَلَعِ الدَّيْنِ، وَغَلَبَةِ الرِّجَالِ»*\n"
           "*\"O Allah, I seek refuge in You from anxiety and grief, helplessness and laziness, stinginess and cowardice, debt, and being overpowered by people.\"* [Bukhari 2893]\n"
@@ -158,7 +158,7 @@ class WaleeyAiService {
           "2. **Genuine Remorse (An-Nadam)**: Feeling deep regret in the heart (*\"Regret is repentance\"*).\n"
           "3. **Firm Intention**: Resolving sincerely never to return to the sin.\n"
           "4. **Restitution of Rights**: Returning any rights or apologizing if another person was wronged.\n\n"
-          "✨ *\"The one who repents from sin is like one who has no sin at all.\"* [Ibn Majah 4250]",
+          "*\"The one who repents from sin is like one who has no sin at all.\"* [Ibn Majah 4250]",
       citations: ["Surah Az-Zumar 39:53", "Sunan Ibn Majah 4250", "Sahih Muslim 2749"],
       suggestions: ["Virtues of Tahajjud", "Conditions of accepted Dua", "Attaining Khushu in Salah"],
     ),
@@ -267,7 +267,7 @@ class WaleeyAiService {
     // 1. Common greetings
     if (["salam", "assalam", "assalamu alaikum", "hello", "hi"].contains(clean)) {
       return ChatMessage(
-        text: "Wa Alaikum Assalam wa Rahmatullahi wa Barakatuh$nameGreeting! 🌸 May peace and blessings of Allah be upon you. How may I assist your reflection today?",
+        text: "Wa Alaikum Assalam wa Rahmatullahi wa Barakatuh$nameGreeting! May peace and blessings of Allah be upon you. How may I assist your reflection today?",
         isUser: false,
         suggestions: List.from(starterPrompts)..shuffle(),
       );
@@ -315,7 +315,7 @@ class WaleeyAiService {
         );
 
         final systemInstruction =
-            "You are Waleey (وَلِيّ) — an Islamic AI Companion for the MoodVerses platform. Answer questions about Islam, the Holy Quran, Sunnah, Islamic history, and Seerah with authentic citations (Surah:Ayah, Sahih Hadith).\n"
+            "You are Waleey (وَلِيّ): an Islamic AI Companion for the MoodVerses platform. Answer questions about Islam, the Holy Quran, Sunnah, Islamic history, and Seerah with authentic citations (Surah:Ayah, Sahih Hadith).\n"
             "${(userName != null && userName.trim().isNotEmpty) ? "The user's name is ${userName.trim()}. Address them respectfully by name when appropriate.\n" : ""}"
             "- Provide thorough, detailed, and completely finished explanations. NEVER truncate or stop mid-sentence.\n"
             "- Format your answers with clear markdown bullet points and bold headings. Never wrap words in doubled quotation marks; use standard bold **word** instead.";

@@ -61,7 +61,7 @@ class ChatSession {
   static ChatMessage getInitialGreeting() {
     return ChatMessage(
       text:
-          "Assalamu Alaikum wa Rahmatullahi wa Barakatuh! 🌿 I am **Waleey** (وَلِيّ), your Islamic AI companion.\n\n"
+          "Assalamu Alaikum wa Rahmatullahi wa Barakatuh! I am **Waleey** (وَلِيّ), your Islamic companion.\n\n"
           "You can ask me questions about the **Holy Quran**, authentic **Prophetic Seerah**, **Hadith**, Islamic history, and daily worship. Every response includes verified references.\n\n"
           "How may I assist your reflection today?",
       isUser: false,

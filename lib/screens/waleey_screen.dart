@@ -6,6 +6,8 @@ import '../services/chat_repository.dart';
 import '../services/waleey_ai_service.dart';
 import '../theme/app_theme.dart';
 import '../components/user_profile_dialog.dart';
+import 'privacy_policy_screen.dart';
+import 'terms_conditions_screen.dart';
 
 class WaleeyScreen extends StatefulWidget {
   const WaleeyScreen({super.key});
@@ -311,8 +313,8 @@ class _WaleeyScreenState extends State<WaleeyScreen> {
                             const SizedBox(height: 12),
                             Text(
                               _userName != null && _userName!.isNotEmpty
-                                  ? "Assalamu Alaikum, $_userName! 🌸"
-                                  : "Assalamu Alaikum! 🌸",
+                                  ? "Assalamu Alaikum, $_userName"
+                                  : "Assalamu Alaikum",
                               style: const TextStyle(
                                 color: AppColors.goldLight,
                                 fontSize: 18,
@@ -564,6 +566,31 @@ class _WaleeyScreenState extends State<WaleeyScreen> {
                 ),
               ),
             ),
+
+            // Privacy & Terms Links in Drawer
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      PrivacyPolicyScreen.show(context);
+                    },
+                    child: const Text("Privacy", style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                  ),
+                  const Text("•", style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      TermsConditionsScreen.show(context);
+                    },
+                    child: const Text("Terms", style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -666,7 +693,7 @@ class _WaleeyScreenState extends State<WaleeyScreen> {
               spacing: 6,
               children: msg.suggestions.take(2).map((s) {
                 return ActionChip(
-                  label: Text("✦ $s", style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                  label: Text(s, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
                   backgroundColor: AppColors.emeraldSurfaceVariant,
                   side: const BorderSide(color: AppColors.borderSubtle),
                   onPressed: () => _sendMessage(s),

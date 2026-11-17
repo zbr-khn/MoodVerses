@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
+import '../screens/privacy_policy_screen.dart';
+import '../screens/terms_conditions_screen.dart';
 import 'auth_dialog.dart';
 
 class UserProfileDialog extends StatefulWidget {
@@ -461,12 +463,36 @@ class _UserProfileDialogState extends State<UserProfileDialog> {
                       ),
                     ],
 
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
+                    const Divider(color: AppColors.borderSubtle),
+                    const SizedBox(height: 8),
+
+                    // Legal & Policies
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            PrivacyPolicyScreen.show(context);
+                          },
+                          child: const Text("Privacy Policy", style: TextStyle(color: AppColors.textMuted, fontSize: 11.5)),
+                        ),
+                        const Text("•", style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            TermsConditionsScreen.show(context);
+                          },
+                          child: const Text("Terms & Conditions", style: TextStyle(color: AppColors.textMuted, fontSize: 11.5)),
+                        ),
+                      ],
+                    ),
 
                     // Close Button
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: const Text("Done", style: TextStyle(color: AppColors.textMuted)),
+                      child: const Text("Done", style: TextStyle(color: AppColors.goldLight, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),

@@ -113,8 +113,8 @@ class _AuthDialogState extends State<AuthDialog> with SingleTickerProviderStateM
   void _notifySuccess(dynamic user, bool isNewUser, [String? fallbackName]) {
     final name = _resolveGreetingName(user, fallbackName);
     final message = isNewUser
-        ? "Welcome, $name! 🌟 Your account has been created."
-        : "Welcome back, $name! 🌸";
+        ? "Welcome, $name! Your account has been created."
+        : "Welcome back, $name!";
 
     final messenger = ScaffoldMessenger.maybeOf(context);
     messenger?.showSnackBar(
@@ -321,9 +321,9 @@ class _AuthDialogState extends State<AuthDialog> with SingleTickerProviderStateM
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.15),
+                  color: Colors.red.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.red.withOpacity(0.3)),
+                  border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
                 ),
                 child: Text(_errorMessage!, style: const TextStyle(color: Color(0xFFFCA5A5), fontSize: 12), textAlign: TextAlign.center),
               ),
@@ -333,9 +333,9 @@ class _AuthDialogState extends State<AuthDialog> with SingleTickerProviderStateM
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.15),
+                  color: Colors.green.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.green.withOpacity(0.3)),
+                  border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
                 ),
                 child: Text(_successMessage!, style: const TextStyle(color: Color(0xFFA7F3D0), fontSize: 12), textAlign: TextAlign.center),
               ),
@@ -351,7 +351,7 @@ class _AuthDialogState extends State<AuthDialog> with SingleTickerProviderStateM
                     children: [
                       if (_verificationId == null) ...[
                         const Text(
-                          "Sign in with your mobile number — no password needed. We'll send an SMS verification code.",
+                          "Sign in with your mobile number - no password needed. We will send an SMS verification code.",
                           style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
                           textAlign: TextAlign.center,
                         ),

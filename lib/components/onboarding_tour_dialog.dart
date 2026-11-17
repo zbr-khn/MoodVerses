@@ -50,10 +50,10 @@ class _OnboardingTourDialogState extends State<OnboardingTourDialog> {
     OnboardingStep(
       title: "Mood-Based Quran Exploration",
       arabicTitle: "الاستكشاف حسب المشاعر",
-      description: "Discover authentic Quranic verses curated for 12 spiritual emotional states — including Anxiety, Sadness, Gratitude, Loneliness, Seeking Guidance, and Heartbreak.",
+      description: "Discover authentic Quranic verses curated for 12 spiritual emotional states: including Anxiety, Sadness, Gratitude, Loneliness, Seeking Guidance, and Heartbreak.",
       icon: Icons.explore,
       iconColor: AppColors.emeraldPrimary,
-      tip: "💡 Tap any mood card on the Explore tab to dive into soothing Ayat for that feeling.",
+      tip: "Tap any mood card on the Explore tab to dive into soothing Ayat for that feeling.",
     ),
     OnboardingStep(
       title: "Contemplative Ayah Reader",
@@ -61,15 +61,15 @@ class _OnboardingTourDialogState extends State<OnboardingTourDialog> {
       description: "Immerse yourself in authentic Uthmanic Arabic calligraphy, accurate English transliterations, verified translations, and spiritual reflections.",
       icon: Icons.menu_book,
       iconColor: AppColors.goldLight,
-      tip: "💡 Tap the Heart icon on any verse to save it into your favorites collection.",
+      tip: "Tap the Heart icon on any verse to save it into your favorites collection.",
     ),
     OnboardingStep(
       title: "Waleey AI Companion",
-      arabicTitle: "وَلِيّ — رفيقك الإسلامي الذكي",
-      description: "Ask questions about the Holy Quran, Prophetic Seerah (Ta'if, Badr, Hijrah), Islamic Golden Age scholars, and Salah guidance. Waleey provides verified citations.",
+      arabicTitle: "وَلِيّ: رفيقك الإسلامي",
+      description: "Ask questions about the Holy Quran, Prophetic Seerah (Ta'if, Badr, Hijrah), Islamic Golden Age scholars, and Salah guidance with authentic verified references.",
       icon: Icons.auto_awesome,
       iconColor: AppColors.goldAccent,
-      tip: "💡 Every citation is interactive — tap any reference to explore its full context and commentary.",
+      tip: "Every response includes authentic citations from the Quran and Sahih Hadith.",
     ),
     OnboardingStep(
       title: "Digital Tasbih Counter",
@@ -77,15 +77,15 @@ class _OnboardingTourDialogState extends State<OnboardingTourDialog> {
       description: "Recite daily Dhikr (SubhanAllah, Alhamdulillah, Allahu Akbar, Astaghfirullah) with physical haptic vibration and tap feedback on every bead.",
       icon: Icons.touch_app,
       iconColor: AppColors.emeraldPrimary,
-      tip: "💡 Complete 33 or 100 beads to celebrate cycle completions with vibration cues.",
+      tip: "Complete 33 or 100 beads to complete cycles with gentle haptic cues.",
     ),
     OnboardingStep(
       title: "Cross-Device Cloud Sync",
       arabicTitle: "المزامنة السحابية والمحفوظات",
-      description: "Log in with your Mobile Phone OTP, Email, or Google account. Your liked Ayat and Waleey AI conversations will back up and sync across all your devices automatically!",
+      description: "Log in with your Mobile Phone OTP, Email, or Google account. Your liked Ayat and Waleey conversations will back up and sync across all your devices automatically.",
       icon: Icons.cloud_done,
       iconColor: AppColors.goldAccent,
-      tip: "💡 You can always use the app offline as a guest — cloud sync activates whenever you log in.",
+      tip: "You can always use the app offline as a guest. Cloud sync activates whenever you log in.",
     ),
   ];
 
@@ -260,7 +260,7 @@ class _OnboardingTourDialogState extends State<OnboardingTourDialog> {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     child: Text(
-                      isLast ? "Get Started 🚀" : "Next",
+                      isLast ? "Get Started" : "Next",
                       style: const TextStyle(
                         color: AppColors.emeraldDeep,
                         fontWeight: FontWeight.bold,

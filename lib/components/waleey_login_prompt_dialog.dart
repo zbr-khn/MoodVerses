@@ -87,7 +87,7 @@ class WaleeyLoginPromptDialog extends StatelessWidget {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: const Text(
-                  "Sign In / Register ☁️",
+                  "Sign In / Register",
                   style: TextStyle(
                     color: AppColors.emeraldDeep,
                     fontWeight: FontWeight.bold,
