@@ -34,7 +34,7 @@ object WaleeyAiAgent {
 
     /**
      * ══════════════════════════════════════════════════════════════════════════
-     * 🔑 APP-WIDE BUILT-IN GEMINI API KEY
+     * APP-WIDE BUILT-IN GEMINI API KEY
      * ══════════════════════════════════════════════════════════════════════════
      * Embedded directly for the entire app so that any user downloading or
      * running the app gets full, instant access to the AI without needing
@@ -107,7 +107,7 @@ The Angel Jibreel (AS) descended alongside the Angel of Mountains, who asked per
 The Prophet ﷺ replied with timeless mercy:
 *"No, rather I hope that Allah will bring forth from their loins descendants who will worship Allah alone without associating any partners with Him."*
 
-✨ **Lesson**: Never let the cruelty of others extinguish your compassion. Even in his deepest pain, Rasulullah ﷺ prayed for the guidance of his persecutors.""",
+**Lesson**: Never let the cruelty of others extinguish your compassion. Even in his deepest pain, Rasulullah ﷺ prayed for the guidance of his persecutors.""",
             citations = listOf("Sahih al-Bukhari 3231", "Sahih Muslim 1795"),
             suggestions = listOf("Conquest of Makkah", "The Year of Sorrow", "Treaty of Hudaybiyyah")
         ),
@@ -118,7 +118,7 @@ The Prophet ﷺ replied with timeless mercy:
             answer = """The preservation and compilation of the Quran unfolded through three meticulously documented historical stages:
 
 1. **During the Lifetime of the Prophet ﷺ (Oral & Inscribed Records)**:
-   Whenever an Ayah was revealed, the Prophet ﷺ designated official scribes (Kuttab al-Wahy)—including Zaid ibn Thabit, Ali ibn Abi Talib, and Ubayy ibn Ka'b—to write it down on parchment, leather, date palm leaves, and shoulder blades, while thousands of Sahabah committed every verse to memory.
+   Whenever an Ayah was revealed, the Prophet ﷺ designated official scribes (Kuttab al-Wahy) including Zaid ibn Thabit, Ali ibn Abi Talib, and Ubayy ibn Ka'b, to write it down on parchment, leather, date palm leaves, and shoulder blades, while thousands of Sahabah committed every verse to memory.
 
 2. **The Era of Caliph Abu Bakr As-Siddiq (RA)**:
    Following the Battle of Yamama (632 CE) where many Huffaz were martyred, Umar (RA) proposed gathering all manuscripts into a single codex. Abu Bakr appointed Zaid ibn Thabit (RA) to lead the task. Zaid demanded two eyewitnesses for every written piece to confirm it was inscribed before the Prophet ﷺ. This primary collection was safeguarded with Hafsah bint Umar (RA).
@@ -126,7 +126,7 @@ The Prophet ﷺ replied with timeless mercy:
 3. **The Era of Caliph Uthman ibn Affan (RA) (Standardization)**:
    As Islam spread from Egypt to Central Asia, regional dialect differences emerged in recitation. In 650 CE, Caliph Uthman (RA) formed a committee headed by Zaid ibn Thabit to transcribe standard copies based on the original dialect of the Quraysh. Copies were dispatched to major capitals (Kufa, Basra, Damascus, Makkah, Madinah).
 
-✨ **Divine Guarantee**: *"Indeed, it is We who sent down the Qur'an and indeed, We will be its guardian."* [Surah Al-Hijr 15:9]""",
+**Divine Guarantee**: *"Indeed, it is We who sent down the Qur'an and indeed, We will be its guardian."* [Surah Al-Hijr 15:9]""",
             citations = listOf("Surah Al-Hijr 15:9", "Sahih al-Bukhari 4986, 4987"),
             suggestions = listOf("Who was Zaid ibn Thabit?", "The 4 Caliphs (Khulafa)", "Surah Al-Kahf background")
         ),
@@ -185,9 +185,9 @@ Wake up in the last third of the night, perform Wudu, and pray 2 rak'ahs at a ti
    - Authored *Al-Qanun fi al-Tibb* (The Canon of Medicine), which remained Europe's standard medical textbook for over 600 years.
 
 5. **Fatima al-Fihri (859 CE)**:
-   - Founded the **University of al-Qarawiyyin** in Fez, Morocco—recognized by UNESCO and Guinness as the oldest continually operating university in human history.
+   - Founded the **University of al-Qarawiyyin** in Fez, Morocco: recognized by UNESCO and Guinness as the oldest continually operating university in human history.
 
-✨ **Spiritual Foundation**: Islamic scientific inquiry flourished because the Quran repeatedly urges humanity: *"Do they not reflect upon the universe and their own creation?"*""",
+**Spiritual Foundation**: Islamic scientific inquiry flourished because the Quran repeatedly urges humanity: *"Do they not reflect upon the universe and their own creation?"*""",
             citations = listOf("Surah Yunus 10:101", "Surah Ali 'Imran 3:190-191"),
             suggestions = listOf("The 4 Caliphs (Khulafa)", "Who was Imam Bukhari?", "How the Quran was compiled")
         ),
@@ -203,7 +203,7 @@ Islamic pillars for healing emotional pain:
 1. **Validation & Patience (Sabr)**: 
    Sabr is not passive suffering; it is active emotional resilience. Allah reminds us: *"And seek help through patience and prayer..."* [Surah Al-Baqarah 2:45]
 2. **Every Pain Expiates Sins**: 
-   Rasulullah ﷺ said: *"No fatigue, illness, anxiety, sorrow, harm, or distress befalls a Muslim—even the prick of a thorn—except that Allah expiates some of their sins through it."* [Bukhari]
+   Rasulullah ﷺ said: *"No fatigue, illness, anxiety, sorrow, harm, or distress befalls a Muslim - even the prick of a thorn - except that Allah expiates some of their sins through it."* [Bukhari]
 3. **The Divine Du'a for Anxiety**:
    *«اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَالْعَجْزِ وَالْكَسَلِ، وَالْبُخْلِ وَالْجُبْنِ، وَضَلَعِ الدَّيْنِ، وَغَلَبَةِ الرِّجَالِ»*
    *"O Allah, I seek refuge in You from anxiety and grief, helplessness and laziness, stinginess and cowardice, the burden of debt, and being overpowered by people."* [Bukhari 2893]
@@ -254,7 +254,7 @@ The 4 Conditions of Sincere Repentance (Tawbah Nasuhah):
 3. **Firm Intention Never to Return**: Resolving sincerely not to repeat the transgression.
 4. **Restitution of Rights**: If the sin involved harming another person (stolen property, slander, gossip), one must restore their rights or seek their pardon.
 
-✨ **Prophetic Glad Tidings**: 
+**Prophetic Glad Tidings**: 
 *"The one who repents from sin is like one who has no sin at all."* [Sunan Ibn Majah 4250]""",
             citations = listOf("Surah Az-Zumar 39:53", "Sunan Ibn Majah 4250", "Sahih Muslim 2749"),
             suggestions = listOf("Virtues of Tahajjud", "Conditions of accepted Dua", "Attaining Khushu in Salah")
@@ -277,7 +277,7 @@ Key etiquette for answered Dua:
    - While **traveling** or **fasting**.
    - When **rain falls**.
 
-✨ **How Allah Responds**:
+**How Allah Responds**:
 A Dua is answered in one of three ways: (1) Granted in this world, (2) Evil or calamity of equal measure averted, or (3) Saved as radiant reward in the Akhirah.""",
             citations = listOf("Surah Ghafir 40:60", "Jami` at-Tirmidhi 3371", "Musnad Ahmad 11133"),
             suggestions = listOf("Virtues of Tahajjud", "Attaining Khushu in Salah", "Overcoming anxiety & grief")
@@ -293,7 +293,7 @@ Key facts about Imam Bukhari's monumental life:
 - **The Rigor of His Sahih**: Spent 16 years traveling across Khurasan, Iraq, Hijaz, Syria, and Egypt. Out of approximately 600,000 narrations he collected, he selected only 7,275 (including repetitions) for *Al-Jami' al-Sahih*.
 - **Spiritual Method**: For every single Hadith he included in his Sahih, he performed Ghusl (ritual bath), prayed two rak'ahs of Istikharah prayer, and verified both the upright character (*'Adalah*) and unbroken chronological connection (*Ittisal*) of every narrator in the chain.
 
-✨ His work is recognized by consensus of the Muslim Ummah as the most authentic book after the Holy Quran.""",
+His work is recognized by consensus of the Muslim Ummah as the most authentic book after the Holy Quran.""",
             citations = listOf("Siyar A'lam al-Nubala by Imam al-Dhahabi", "Muqaddimah Ibn al-Salah"),
             suggestions = listOf("How the Quran was compiled", "Islamic Golden Age & Scholars", "The 4 Caliphs (Khulafa)")
         ),
@@ -309,7 +309,7 @@ The Three Levels of Fasting (as described by Imam Al-Ghazali):
 2. **Fasting of the Senses (Sawm al-Khusus)**: Restraining the eyes, tongue, ears, hands, and feet from committing sins (lying, backbiting, anger, gossip). Rasulullah ﷺ warned: *"Whoever does not give up false speech and evil actions, Allah is not in need of his leaving food and drink."* [Bukhari]
 3. **Fasting of the Heart (Sawm Khusus al-Khusus)**: Fasting of the inner consciousness from worldly greed and distracting thoughts, centering the heart solely upon Allah.
 
-✨ **Divine Reward**: In a Hadith Qudsi, Allah says: *"Fasting is for Me, and I Myself shall reward it."* [Bukhari]""",
+**Divine Reward**: In a Hadith Qudsi, Allah says: *"Fasting is for Me, and I Myself shall reward it."* [Bukhari]""",
             citations = listOf("Surah Al-Baqarah 2:183", "Sahih al-Bukhari 1903, 1904", "Ihya' 'Ulum al-Din by Al-Ghazali"),
             suggestions = listOf("Attaining Khushu in Salah", "Sincere Repentance (Tawbah)", "Conditions of accepted Dua")
         )
@@ -318,9 +318,9 @@ The Three Levels of Fasting (as described by Imam Al-Ghazali):
     fun getInitialGreeting(userName: String? = null): ChatMessage {
         val nameGreeting = if (!userName.isNullOrBlank()) ", $userName" else ""
         return ChatMessage(
-            text = """Assalamu Alaikum wa Rahmatullahi wa Barakatuh$nameGreeting! 🌿
+            text = """Assalamu Alaikum wa Rahmatullahi wa Barakatuh$nameGreeting!
 
-I am **Waleey (وَلِيّ) — Your Islamic AI Companion**, here to accompany your journey through the timeless guidance of the Holy Quran, Prophetic Seerah, and Islamic history.
+I am **Waleey (وَلِيّ): Your Islamic AI Companion**, here to accompany your journey through the timeless guidance of the Holy Quran, Prophetic Seerah, and Islamic history.
 
 Ask me anything about:
 • **Prophetic Seerah & Milestones** (Ta'if, Badr, Hudaybiyyah)
@@ -364,7 +364,7 @@ How may I assist your contemplation and learning today?""",
         val namePart = if (!userName.isNullOrBlank()) ", $userName" else ""
         if (clean in listOf("salam", "assalam", "assalamu alaikum", "as-salamu alaykum", "hello", "hi", "hey")) {
             return@withContext ChatMessage(
-                text = "Wa Alaikum Assalam wa Rahmatullahi wa Barakatuh$namePart! 🌸 May peace and blessings of Allah be upon you. How may I assist your learning or reflection today?",
+                text = "Wa Alaikum Assalam wa Rahmatullahi wa Barakatuh$namePart! May peace and blessings of Allah be upon you. How may I assist your learning or reflection today?",
                 isUser = false,
                 suggestions = starterPrompts.shuffled().take(4)
             )
@@ -471,7 +471,7 @@ Please ensure your device is connected to the internet and try asking again, or 
                 conn.readTimeout = 40000
 
                 val nameInstruction = if (!userName.isNullOrBlank()) "The user's name is $userName. Address them respectfully by name when appropriate.\n" else ""
-                val systemInstruction = "You are Waleey (وَلِيّ) — an Islamic AI Companion for the MoodVerses platform. Answer questions about Islam, the Holy Quran, Sunnah, Islamic history, and Seerah with authentic citations (Surah:Ayah, Sahih Hadith).\n" +
+                val systemInstruction = "You are Waleey (وَلِيّ): an Islamic AI Companion for the MoodVerses platform. Answer questions about Islam, the Holy Quran, Sunnah, Islamic history, and Seerah with authentic citations (Surah:Ayah, Sahih Hadith).\n" +
                         nameInstruction +
                         "- CRITICAL RULE: DO NOT start your response with 'Assalamu Alaikum', 'Wa Alaikum Assalam', or any greeting. The Islamic greeting has already been given once at the start of the chat. Jump immediately and directly into answering the question.\n" +
                         "- Provide thorough, detailed, and completely finished explanations. NEVER truncate or stop mid-sentence.\n" +

@@ -20,7 +20,7 @@ data class MoodCategory(
     val id: String,
     val label: String,
     val arabicLabel: String,
-    val emoji: String,
+    val emoji: String = "",
     val subtitle: String,
     val colorHex: Long
 )

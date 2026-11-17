@@ -6,19 +6,19 @@ import com.moodverses.app.model.QuranVerse
 object QuranRepository {
 
     val moods = listOf(
-        MoodCategory("all", "All Verses", "كل الآيات", "📖", "Complete Quranic collection", 0xFF10B981),
-        MoodCategory("anxious", "Anxious", "السكينة", "🌊", "Peace & Stillness (Sakinah)", 0xFF0D9488),
-        MoodCategory("sad", "Sad & Grieving", "الصبر والفرج", "🌧️", "Ease with hardship (Sabr)", 0xFF3B82F6),
-        MoodCategory("grateful", "Grateful", "الشكر والحمد", "☀️", "Counting blessings (Shukr)", 0xFFF59E0B),
-        MoodCategory("lonely", "Lonely", "القرب من الله", "🌌", "Closer than your jugular vein", 0xFF6366F1),
-        MoodCategory("angry", "Angry", "كظم الغيظ", "🔥", "Patience & Restraint", 0xFFEF4444),
-        MoodCategory("lost", "Seeking Guidance", "طلب الهداية", "🧭", "Straight path & clarity", 0xFF10B981),
-        MoodCategory("heartbroken", "Heartbroken", "جبر القلوب", "💔", "Divine healing balm (Shifa)", 0xFFEC4899),
-        MoodCategory("fearful", "Afraid", "التوكل والشجاعة", "🛡️", "Courage & HasbunAllah", 0xFF64748B),
-        MoodCategory("guilty", "Seeking Forgiveness", "التوبة والمغفرة", "🕊️", "Vast ocean of mercy", 0xFF06B6D4),
-        MoodCategory("exhausted", "Burnt Out", "الراحة والسكينة", "🍃", "Rest & Peaceful sleep", 0xFF14B8A6),
-        MoodCategory("doubtful", "Seeking Faith", "النور واليقين", "🕯️", "Ayat An-Nur & Yaqeen", 0xFFEAB308),
-        MoodCategory("dua", "Quranic Duas", "أدعية القرآن", "🤲", "Powerful Quranic prayers", 0xFF059669)
+        MoodCategory("all", "All Verses", "كل الآيات", "", "Complete Quranic collection", 0xFF10B981),
+        MoodCategory("anxious", "Anxious", "السكينة", "", "Peace & Stillness (Sakinah)", 0xFF0D9488),
+        MoodCategory("sad", "Sad & Grieving", "الصبر والفرج", "", "Ease with hardship (Sabr)", 0xFF3B82F6),
+        MoodCategory("grateful", "Grateful", "الشكر والحمد", "", "Counting blessings (Shukr)", 0xFFF59E0B),
+        MoodCategory("lonely", "Lonely", "القرب من الله", "", "Closer than your jugular vein", 0xFF6366F1),
+        MoodCategory("angry", "Angry", "كظم الغيظ", "", "Patience & Restraint", 0xFFEF4444),
+        MoodCategory("lost", "Seeking Guidance", "طلب الهداية", "", "Straight path & clarity", 0xFF10B981),
+        MoodCategory("heartbroken", "Heartbroken", "جبر القلوب", "", "Divine healing balm (Shifa)", 0xFFEC4899),
+        MoodCategory("fearful", "Afraid", "التوكل والشجاعة", "", "Courage & HasbunAllah", 0xFF64748B),
+        MoodCategory("guilty", "Seeking Forgiveness", "التوبة والمغفرة", "", "Vast ocean of mercy", 0xFF06B6D4),
+        MoodCategory("exhausted", "Burnt Out", "الراحة والسكينة", "", "Rest & Peaceful sleep", 0xFF14B8A6),
+        MoodCategory("doubtful", "Seeking Faith", "النور واليقين", "", "Ayat An-Nur & Yaqeen", 0xFFEAB308),
+        MoodCategory("dua", "Quranic Duas", "أدعية القرآن", "", "Powerful Quranic prayers", 0xFF059669)
     )
 
     val verses = listOf(
@@ -420,7 +420,7 @@ object QuranRepository {
             arabicText = "رَبَّنَا آتِنَا مِن لَّدُنكَ رَحْمَةً وَهَيِّئْ لَنَا مِنْ أَمْرِنَا رَشَدًا",
             transliteration = "Rabbana atina min ladunka rahmatan wahayyi/ lana min amrina rashada",
             translation = "Our Lord, grant us from Yourself mercy and prepare for us from our affair right guidance.",
-            reflection = "The famous prayer of the youths of the cave. When life forces you into difficult circumstances, ask Allah for 'Rushd'—intuitive right judgment.",
+            reflection = "The famous prayer of the youths of the cave. When life forces you into difficult circumstances, ask Allah for 'Rushd' - intuitive right judgment.",
             tags = listOf("kahf", "mercy", "rushd", "guidance")
         ),
         QuranVerse(
@@ -467,7 +467,7 @@ object QuranRepository {
             arabicText = "وَنُنَزِّلُ مِنَ الْقُرْآنِ مَا هُوَ شِفَاءٌ وَرَحْمَةٌ لِّلْمُؤْمِنِينَ",
             transliteration = "Wanunazzilu mina alqur-ani ma huwa shifa-on warahmatun lilmumi-neen",
             translation = "And We send down of the Quran that which is healing and mercy for the believers.",
-            reflection = "The Quran is Shifa'—spiritual medicine for wounded hearts and exhausted souls.",
+            reflection = "The Quran is Shifa' - spiritual medicine for wounded hearts and exhausted souls.",
             tags = listOf("shifa", "healing", "mercy", "medicine")
         ),
         QuranVerse(
@@ -591,7 +591,7 @@ object QuranRepository {
             arabicText = "إِلَّا مَن تَابَ وَآمَنَ وَعَمِلَ عَمَلًا صَالِحًا فَأُولَٰئِكَ يُبَدِّلُ اللَّهُ سَيِّئَاتِهِمْ حَسَنَاتٍ",
             transliteration = "Illa man taba waamana wa'amila 'amalan salihan faola-ika yubaddilu Allahu sayyi-atihim hasanat",
             translation = "Except for those who repent, believe and do righteous work. For them Allah will replace their evil deeds with good.",
-            reflection = "Allah does not just erase past sins upon sincere repentance—He miraculously converts those past mistakes into mountains of rewards on your scale.",
+            reflection = "Allah does not just erase past sins upon sincere repentance - He miraculously converts those past mistakes into mountains of rewards on your scale.",
             tags = listOf("tawbah", "transformation", "rewards", "fresh-start")
         ),
         QuranVerse(

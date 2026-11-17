@@ -86,7 +86,7 @@ fun AuthDialog(
                     when (res) {
                         is AuthResult.Success -> {
                             val name = account.displayName ?: AuthManager.currentUser?.displayName ?: "User"
-                            Toast.makeText(context, "Welcome back, $name! 🌸", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Welcome back, $name!", Toast.LENGTH_SHORT).show()
                             onAuthSuccess()
                         }
                         is AuthResult.Error -> errorMessage = res.message
@@ -231,7 +231,7 @@ fun AuthDialog(
                         },
                         text = {
                             Text(
-                                "📱 Phone OTP",
+                                "Phone OTP",
                                 color = if (selectedTab == 0) GoldAccent else TextMuted,
                                 fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal,
                                 fontSize = 12.5.sp
@@ -247,7 +247,7 @@ fun AuthDialog(
                         },
                         text = {
                             Text(
-                                "✉️ Email & Pass",
+                                "Email & Password",
                                 color = if (selectedTab == 1) GoldAccent else TextMuted,
                                 fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal,
                                 fontSize = 12.5.sp
@@ -300,7 +300,7 @@ fun AuthDialog(
                     when (val state = phoneOtpState) {
                         is PhoneOtpState.Idle, is PhoneOtpState.SendingOtp, is PhoneOtpState.VerificationFailed -> {
                             Text(
-                                text = "Sign in directly with your mobile number. No password required — we will send an SMS with a 6-digit verification code.",
+                                text = "Sign in directly with your mobile number. No password required. We will send an SMS with a 6-digit verification code.",
                                 color = TextSecondary,
                                 fontSize = 12.5.sp,
                                 lineHeight = 18.sp,
@@ -397,7 +397,7 @@ fun AuthDialog(
                                         when (result) {
                                             is AuthResult.Success -> {
                                                 val name = AuthManager.currentUser?.displayName ?: "User"
-                                                Toast.makeText(context, "Welcome back, $name! 🌸", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, "Welcome back, $name!", Toast.LENGTH_SHORT).show()
                                                 onAuthSuccess()
                                             }
                                             is AuthResult.Error -> errorMessage = result.message
@@ -525,7 +525,7 @@ fun AuthDialog(
                                     when (res) {
                                         is AuthResult.Success -> {
                                             val name = nameInput.trim().ifEmpty { cleanEmail.substringBefore("@").replaceFirstChar { it.uppercase() } }
-                                            Toast.makeText(context, "Welcome, $name! 🌟 Your account has been created.", Toast.LENGTH_LONG).show()
+                                            Toast.makeText(context, "Welcome, $name! Your account has been created.", Toast.LENGTH_LONG).show()
                                             onAuthSuccess()
                                         }
                                         is AuthResult.Error -> {
@@ -545,7 +545,7 @@ fun AuthDialog(
                                         is AuthResult.Success -> {
                                             val name = AuthManager.currentUser?.displayName?.ifEmpty { null }
                                                 ?: cleanEmail.substringBefore("@").replaceFirstChar { it.uppercase() }
-                                            Toast.makeText(context, "Welcome back, $name! 🌸", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, "Welcome back, $name!", Toast.LENGTH_SHORT).show()
                                             onAuthSuccess()
                                         }
                                         is AuthResult.Error -> {

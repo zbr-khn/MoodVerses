@@ -63,6 +63,8 @@ fun WaleeyScreen() {
     var showAuthDialog by remember { mutableStateOf(false) }
     var showAccountDialog by remember { mutableStateOf(false) }
     var showLogoutConfirmation by remember { mutableStateOf(false) }
+    var showPrivacyDialog by remember { mutableStateOf(false) }
+    var showTermsDialog by remember { mutableStateOf(false) }
     var isLoggedIn by remember { mutableStateOf(AuthManager.isLoggedIn) }
     var userName by remember { mutableStateOf(AuthManager.getCustomUserName(context)) }
 
@@ -736,6 +738,19 @@ fun WaleeyScreen() {
                             }
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        TextButton(onClick = { showPrivacyDialog = true }) {
+                            Text("Privacy Policy", color = GoldAccent, fontSize = 12.sp)
+                        }
+                        TextButton(onClick = { showTermsDialog = true }) {
+                            Text("Terms & Conditions", color = GoldAccent, fontSize = 12.sp)
+                        }
+                    }
                 }
             },
             confirmButton = {
@@ -808,6 +823,14 @@ fun WaleeyScreen() {
                 }
             }
         )
+    }
+
+    if (showPrivacyDialog) {
+        PrivacyPolicyDialog(onDismiss = { showPrivacyDialog = false })
+    }
+
+    if (showTermsDialog) {
+        TermsConditionsDialog(onDismiss = { showTermsDialog = false })
     }
 }
 
@@ -978,7 +1001,7 @@ fun FlowRowHelper(
                     .padding(vertical = 2.dp)
             ) {
                 Text(
-                    text = "✦ $suggestion",
+                    text = suggestion,
                     fontSize = 11.sp,
                     color = TextSecondary,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)

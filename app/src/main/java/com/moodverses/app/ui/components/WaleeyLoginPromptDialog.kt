@@ -119,7 +119,7 @@ fun WaleeyLoginPromptDialog(
                         .height(46.dp)
                 ) {
                     Text(
-                        text = "Sign In / Register ☁️",
+                        text = "Sign In / Register",
                         color = EmeraldDeep,
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.5.sp

@@ -12,8 +12,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -130,7 +130,7 @@ fun HomeScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "— ${dailyAyah.reference}",
+                        text = "- ${dailyAyah.reference}",
                         color = TextGold,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
@@ -217,6 +217,24 @@ fun HomeScreen(
     }
 }
 
+fun getMoodIcon(moodId: String): ImageVector {
+    return when (moodId) {
+        "anxious" -> Icons.Default.WaterDrop
+        "sad" -> Icons.Default.Cloud
+        "grateful" -> Icons.Default.WbSunny
+        "lonely" -> Icons.Default.NightsStay
+        "angry" -> Icons.Default.LocalFireDepartment
+        "lost" -> Icons.Default.Explore
+        "heartbroken" -> Icons.Default.FavoriteBorder
+        "fearful" -> Icons.Default.Shield
+        "guilty" -> Icons.Default.Spa
+        "exhausted" -> Icons.Default.Bedtime
+        "doubtful" -> Icons.Default.Lightbulb
+        "dua" -> Icons.Default.PanTool
+        else -> Icons.Default.MenuBook
+    }
+}
+
 @Composable
 fun MoodCard(
     mood: MoodCategory,
@@ -235,7 +253,20 @@ fun MoodCard(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(text = mood.emoji, fontSize = 24.sp)
+            Box(
+                modifier = Modifier
+                    .size(38.dp)
+                    .background(Color(0x22D4AF37), RoundedCornerShape(8.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = getMoodIcon(mood.id),
+                    contentDescription = mood.label,
+                    tint = GoldAccent,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = mood.label,
                 color = Color.White,

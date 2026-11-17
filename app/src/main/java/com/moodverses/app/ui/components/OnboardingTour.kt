@@ -63,10 +63,10 @@ fun OnboardingTourDialog(
         TourStep(
             title = "Mood-Based Quran Exploration",
             arabicTitle = "الاستكشاف حسب المشاعر",
-            description = "Discover authentic Quranic verses curated for 12 spiritual emotional states — including Anxiety, Sadness, Gratitude, Loneliness, Seeking Guidance, and Heartbreak.",
+            description = "Discover authentic Quranic verses curated for 12 spiritual emotional states: including Anxiety, Sadness, Gratitude, Loneliness, Seeking Guidance, and Heartbreak.",
             icon = Icons.Default.Explore,
             iconColor = EmeraldPrimary,
-            tip = "💡 Tap any mood card on the Explore tab to dive into soothing Ayat for that feeling."
+            tip = "Tap any mood card on the Explore tab to dive into soothing Ayat for that feeling."
         ),
         TourStep(
             title = "Contemplative Ayah Reader",
@@ -74,15 +74,15 @@ fun OnboardingTourDialog(
             description = "Immerse yourself in authentic Uthmanic Arabic calligraphy, accurate English transliterations, verified translations, and spiritual reflections.",
             icon = Icons.AutoMirrored.Filled.MenuBook,
             iconColor = GoldLight,
-            tip = "💡 Tap the Heart icon on any verse to save it into your favorites collection."
+            tip = "Tap the Heart icon on any verse to save it into your favorites collection."
         ),
         TourStep(
             title = "Waleey AI Companion",
-            arabicTitle = "وَلِيّ — رفيقك الإسلامي الذكي",
+            arabicTitle = "وَلِيّ: رفيقك الإسلامي الذكي",
             description = "Ask questions about the Holy Quran, Prophetic Seerah (Ta'if, Badr, Hijrah), Islamic Golden Age scholars, and Salah guidance. Waleey provides verified citations.",
             icon = Icons.Default.AutoAwesome,
             iconColor = GoldAccent,
-            tip = "💡 Every citation is interactive — tap any reference to explore its full context and commentary."
+            tip = "Every citation provides authentic Quran and Sunnah source references."
         ),
         TourStep(
             title = "Digital Tasbih Counter",
@@ -90,7 +90,7 @@ fun OnboardingTourDialog(
             description = "Recite daily Dhikr (SubhanAllah, Alhamdulillah, Allahu Akbar, Astaghfirullah) with physical haptic vibration and tap feedback on every bead.",
             icon = Icons.Default.TouchApp,
             iconColor = EmeraldPrimary,
-            tip = "💡 Complete 33 or 100 beads to celebrate cycle completions with vibration cues."
+            tip = "Complete 33 or 100 beads to complete cycles with gentle haptic cues."
         ),
         TourStep(
             title = "Cross-Device Cloud Sync",
@@ -98,7 +98,7 @@ fun OnboardingTourDialog(
             description = "Log in with your Mobile Phone OTP, Email, or Google account. Your liked Ayat and Waleey AI conversations will back up and sync across all your devices automatically!",
             icon = Icons.Default.CloudDone,
             iconColor = GoldAccent,
-            tip = "💡 You can always use the app offline as a guest — cloud sync activates whenever you log in."
+            tip = "You can always use the app offline as a guest. Cloud sync activates whenever you log in."
         )
     )
 
@@ -281,7 +281,7 @@ fun OnboardingTourDialog(
                             .height(46.dp)
                     ) {
                         Text(
-                            text = if (isLastStep) "Get Started 🚀" else "Next",
+                            text = if (isLastStep) "Get Started" else "Next",
                             color = EmeraldDeep,
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp

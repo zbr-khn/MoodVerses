@@ -175,7 +175,7 @@ fun AyahReaderScreen(
                 )
 
                 Text(
-                    text = "— ${verse.reference}",
+                    text = "- ${verse.reference}",
                     color = GoldAccent,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
@@ -236,7 +236,7 @@ fun AyahReaderScreen(
 
                     IconButton(onClick = {
                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        val clip = ClipData.newPlainText("Ayah", "${verse.arabicText}\n\n\"${verse.translation}\"\n— ${verse.reference}")
+                        val clip = ClipData.newPlainText("Ayah", "${verse.arabicText}\n\n\"${verse.translation}\"\n- ${verse.reference}")
                         clipboard.setPrimaryClip(clip)
                         Toast.makeText(context, "Ayah copied to clipboard", Toast.LENGTH_SHORT).show()
                     }) {
